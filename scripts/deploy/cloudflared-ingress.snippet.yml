@@ -1,0 +1,22 @@
+# 既存の Cloudflare Tunnel config.yml に以下の ingress ルールを追加してください。
+# 通常の場所: ~/.cloudflared/config.yml または /etc/cloudflared/config.yml
+#
+# ingress ルールは上から順に評価されます。catch-all（service: http_status:404）の
+# 直前に追加してください。
+#
+# Cloudflare ダッシュボードで DNS CNAME を追加:
+#   名前: deploy
+#   ターゲット: <your-tunnel-id>.cfargotunnel.com
+#   プロキシ: オン（オレンジ雲）
+
+ingress:
+  # --- 既存のルール ---
+  # - hostname: example.t1nyb0x.cloud
+  #   service: http://localhost:XXXX
+
+  # --- 追加するルール ---
+  - hostname: deploy.t1nyb0x.cloud
+    service: http://localhost:9000
+
+  # catch-all（最後に必ず置くこと）
+  - service: http_status:404

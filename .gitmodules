@@ -1,4 +1,0 @@
-[submodule "dashboard"]
-	path = dashboard
-	url = https://github.com/t1nyb0x/discord-twitter-embed-rx-dashboard.git
-	branch = main
