@@ -13,6 +13,8 @@ import { TweetProcessor } from "@/core/services/TweetProcessor";
 import { RedisChannelConfigRepository } from "@/infrastructure/db/RedisChannelConfigRepository";
 import { RedisReplyLogger } from "@/infrastructure/db/RedisReplyLogger";
 import { FileManager } from "@/infrastructure/filesystem/FileManager";
+import { HealthServer } from "@/infrastructure/http/HealthServer";
+import type { HealthCheckDependencies } from "@/infrastructure/http/HealthServer";
 import { HttpClient } from "@/infrastructure/http/HttpClient";
 import { VideoDownloader } from "@/infrastructure/http/VideoDownloader";
 import { cleanupOrphanedConfigs } from "@/utils/cleanupOrphanedConfigs";
@@ -20,6 +22,7 @@ import logger from "@/utils/logger";
 
 import config, { ROOT_DIR } from "./config/config";
 import { connectRedis } from "./db/connect";
+import { redis } from "./db/init";
 import { deleteReply, popReply } from "./db/replyLogger";
 
 enum ApplicationMode {
@@ -44,6 +47,9 @@ switch (ENV) {
 }
 logger.info(`Application started in ${appMode} mode`);
 logger.info(`Version: ${version}`);
+
+// === Health Server ===
+let healthServer: HealthServer | undefined;
 
 // === Load bot token from environ variable ===
 let token: string | undefined;
@@ -282,6 +288,15 @@ client.on("guildDelete", async (guild) => {
 // === Login ===
 (async () => {
   await connectRedis();
+
+  // ヘルスチェックサーバー起動（Redis 接続後に起動）
+  const healthDeps: HealthCheckDependencies = {
+    isRedisReady: () => redis.isReady,
+    isDiscordReady: () => client.isReady(),
+  };
+  healthServer = new HealthServer(healthDeps, undefined, version);
+  await healthServer.start();
+
   await client.login(token);
 })();
 
@@ -313,6 +328,11 @@ process.on("SIGTERM", async () => {
 
 async function shutdown(): Promise<void> {
   try {
+    // ヘルスチェックサーバー停止
+    if (healthServer) {
+      await healthServer.stop();
+    }
+
     // Channel Config Service のシャットダウン
     await channelConfigService.shutdown();
 

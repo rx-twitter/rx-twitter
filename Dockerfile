@@ -38,4 +38,8 @@ RUN npm ci --omit=dev --ignore-scripts
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/.config ./.config
 
+# ヘルスチェック（HEALTH_PORT=9090 で /healthz エンドポイントを確認）
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:9090/healthz || exit 1
+
 CMD ["npm", "run", "start:docker"]
