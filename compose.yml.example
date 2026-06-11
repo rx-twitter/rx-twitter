@@ -6,12 +6,11 @@
 #
 #   ~/TwitterRX/
 #   ├── compose.yml          ← このファイルをコピー
-#   ├── .env                 ← Bot 用環境変数（DISCORD_TOKEN 等）
-#   └── dashboard/
-#       └── .env             ← Dashboard 用環境変数（OAuth2, SESSION_SECRET 等）
+#   └── .env                 ← Bot 用環境変数（DISCORD_TOKEN 等）
 #
-# 前提: jwilder/nginx-proxy が別 compose で起動済みで、
-#       "proxy-network" Docker network が存在すること。
+# デプロイは GitHub Actions から Webhook 経由で自動実行されます。
+# Webhook サーバーのセットアップは scripts/deploy/ を参照してください。
+# 必要なポート開放: 9000/tcp (Webhook)
 #
 # 起動: docker compose up -d
 # 更新: docker compose pull && docker compose up -d --force-recreate --remove-orphans
@@ -35,30 +34,6 @@ services:
       - ./logs:/app/bot/logs
       - ./.config:/app/.config:ro
 
-  # Dashboard（Astro SSR）
-  dashboard:
-    container_name: TwitterRX_Dashboard
-    image: ghcr.io/twitterrx/discord-twitter-embed-rx-dashboard:${IMAGE_TAG:-latest}
-    restart: always
-    env_file:
-      - ./dashboard/.env
-    environment:
-      - REDIS_URL=redis://redis:6379
-      - LOG_DIR=/app/logs/dashboard
-      # jwilder/nginx-proxy 用
-      - VIRTUAL_HOST=${DASHBOARD_DOMAIN}
-      - VIRTUAL_PORT=4321
-    expose:
-      - "4321"
-    depends_on:
-      - redis
-    networks:
-      - twitterrx_network
-      - proxy-network
-    volumes:
-      - dashboard_data:/app/dashboard/data
-      - ./logs/dashboard:/app/logs
-
   # Redis
   redis:
     container_name: TwitterRX_Redis
@@ -74,9 +49,6 @@ services:
 networks:
   twitterrx_network:
     driver: bridge
-  proxy-network:
-    external: true
 
 volumes:
   redis_data:
-  dashboard_data:

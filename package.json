@@ -23,7 +23,6 @@
     "test:e2e": "vitest run tests/e2e",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "test:dashboard": "npm run test --prefix dashboard",
     "lint": "oxlint src/",
     "format": "oxfmt src/"
   },

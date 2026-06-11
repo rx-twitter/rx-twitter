@@ -1,0 +1,25 @@
+[Unit]
+Description=TwitterRX Deploy Webhook
+Documentation=https://github.com/t1nyb0x/discord-twitter-embed-rx
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+# User=<VPS のユーザー名>（docker グループのメンバーであること）
+#
+# /etc/twitterrx-webhook.env に以下を設定（chmod 600 を忘れずに）:
+#   WEBHOOK_SECRET=<長ランダム文字列（openssl rand -hex 32 で生成）>
+#   BOT_COMPOSE_DIR=/home/username/TwitterRX
+#   BOT_DEPLOY_SCRIPT=/opt/twitterrx-webhook/deploy-bot.sh
+#   DASHBOARD_COMPOSE_DIR=/home/username/dashboard
+#   DASHBOARD_DEPLOY_SCRIPT=/opt/twitterrx-webhook/deploy-dashboard.sh
+EnvironmentFile=/etc/twitterrx-webhook.env
+ExecStartPre=/bin/bash -c "envsubst '$$WEBHOOK_SECRET $$BOT_DEPLOY_SCRIPT $$BOT_COMPOSE_DIR $$DASHBOARD_DEPLOY_SCRIPT $$DASHBOARD_COMPOSE_DIR' \
+  < /opt/twitterrx-webhook/hooks.json.tmpl > /tmp/twitterrx-hooks.json"
+ExecStart=/usr/local/bin/webhook -hooks /tmp/twitterrx-hooks.json -ip 127.0.0.1 -port 9000 -verbose
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

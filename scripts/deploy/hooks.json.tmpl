@@ -1,0 +1,34 @@
+[
+  {
+    "id": "deploy-bot",
+    "execute-command": "${BOT_DEPLOY_SCRIPT}",
+    "command-working-directory": "${BOT_COMPOSE_DIR}",
+    "response-message": "Bot deploy triggered",
+    "trigger-rule": {
+      "match": {
+        "type": "payload-hmac-sha256",
+        "secret": "${WEBHOOK_SECRET}",
+        "parameter": {
+          "source": "header",
+          "name": "X-Hub-Signature-256"
+        }
+      }
+    }
+  },
+  {
+    "id": "deploy-dashboard",
+    "execute-command": "${DASHBOARD_DEPLOY_SCRIPT}",
+    "command-working-directory": "${DASHBOARD_COMPOSE_DIR}",
+    "response-message": "Dashboard deploy triggered",
+    "trigger-rule": {
+      "match": {
+        "type": "payload-hmac-sha256",
+        "secret": "${WEBHOOK_SECRET}",
+        "parameter": {
+          "source": "header",
+          "name": "X-Hub-Signature-256"
+        }
+      }
+    }
+  }
+]
