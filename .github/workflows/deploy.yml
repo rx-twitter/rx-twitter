@@ -33,7 +33,7 @@ jobs:
           echo "Response: $(cat /tmp/webhook_response.txt)"
           echo "HTTP Status: $HTTP_STATUS"
 
-          if [ "$HTTP_STATUS" != "204" ]; then
+          if [ "$HTTP_STATUS" != "202" ]; then
             echo "::error::Webhook returned HTTP $HTTP_STATUS"
             exit 1
           fi
