@@ -48,16 +48,16 @@ export class FxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
       quote = this.convertToTweet(fxData.quote, depth + 1);
     }
 
-    // メディアの変換
+    // メディアの変換: media.all を優先して使用（photos/videos を統一的に扱える）
     const media: TweetMedia[] = [];
-    if (fxData.media && fxData.media.photos) {
-      fxData.media.photos.forEach((photo) => {
+    if (fxData.media?.all) {
+      for (const item of fxData.media.all) {
         media.push({
-          url: photo.url,
-          thumbnailUrl: photo.thumbnail_url,
-          type: this.getMediaType(photo.url),
+          url: item.url,
+          thumbnailUrl: item.thumbnail_url || item.url,
+          type: item.type === "video" || item.type === "animated_gif" ? "video" : "photo",
         });
-      });
+      }
     }
 
     return {

@@ -53,17 +53,12 @@ export class VxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
       quote = this.convertToTweet(vxData.qrt, depth + 1);
     }
 
-    // メディアの変換
-    const media: TweetMedia[] = vxData.mediaURLs.map((url, index) => {
-      const type = this.getMediaType(url);
-      const thumbnailUrl = type === "video" ? vxData.media_extended[index]?.thumbnail_url || url : url;
-
-      return {
-        url,
-        thumbnailUrl,
-        type,
-      };
-    });
+    // メディアの変換: media_extended を優先して使用
+    const media: TweetMedia[] = vxData.media_extended.map((extended) => ({
+      url: extended.url,
+      thumbnailUrl: extended.thumbnail_url || extended.url,
+      type: extended.type === "video" ? "video" : "photo",
+    }));
 
     return {
       url: vxData.tweetURL,

@@ -3,7 +3,7 @@ import { mediaUrl } from "../../../fixtures/testMediaUrl";
 
 import type { VxTwitterApi } from "@/vxtwitter/api";
 import { VxTwitterServerError } from "@/vxtwitter/api";
-import type { VxTwitter } from "@/vxtwitter/vxtwitter";
+import type { VxTwitter, MediaSize } from "@/vxtwitter/vxtwitter";
 import { VxTwitterAdapter } from "@/adapters/twitter/VxTwitterAdapter";
 
 vi.mock("@/utils/logger", () => ({
@@ -89,9 +89,9 @@ describe("VxTwitterAdapter", () => {
         media_extended: [
           {
             altText: null,
-            size: [],
+            size: { height: 900, width: 1200 },
             thumbnail_url: mediaUrl("photo.jpg"),
-            type: "photo",
+            type: "image",
             url: mediaUrl("photo.jpg"),
           },
         ],
@@ -111,7 +111,7 @@ describe("VxTwitterAdapter", () => {
         media_extended: [
           {
             altText: null,
-            size: [],
+            size: { height: 720, width: 960 },
             thumbnail_url: mediaUrl("thumb.jpg"),
             type: "video",
             url: mediaUrl("video.mp4"),

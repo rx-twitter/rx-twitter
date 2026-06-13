@@ -7,7 +7,9 @@ import type {
   Tweet as FxTweet,
   Author,
   Media,
+  MediaItem,
   Photo,
+  Video,
 } from "@/fxtwitter/fxtwitter";
 import { FxTwitterAdapter } from "@/adapters/twitter/FxTwitterAdapter";
 
@@ -48,17 +50,20 @@ const createFxTweet = (overrides: Partial<FxTweet> = {}): FxTweet => ({
   ...overrides,
 });
 
-const createFxPhoto = (overrides: Partial<Photo> = {}): Photo => ({
+const createFxMediaItem = (overrides: Partial<MediaItem> = {}): MediaItem => ({
   type: "photo",
-  thumbnail_url: mediaUrl("photo_thumb.jpg"),
+  id: "12345",
   url: mediaUrl("photo.jpg"),
   width: 1920,
   height: 1080,
-  altText: "",
   ...overrides,
 });
 
-const createFxMedia = (photos: Photo[] = []): Media => ({ photos });
+const createFxMedia = (items: MediaItem[] = []): Media => ({
+  all: items,
+  photos: items.filter((m) => m.type === "photo") as Photo[],
+  videos: items.filter((m) => m.type === "video") as Video[],
+});
 
 const createFxResponse = (tweet: FxTweet): FXTwitter => ({
   code: 200,
@@ -120,7 +125,7 @@ describe("FxTwitterAdapter", () => {
 
     it("画像メディアを含むツイートを変換できる", async () => {
       const tweet = createFxTweet({
-        media: createFxMedia([createFxPhoto()]),
+        media: createFxMedia([createFxMediaItem()]),
       });
       mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
 
@@ -129,16 +134,14 @@ describe("FxTwitterAdapter", () => {
       expect(result?.media).toHaveLength(1);
       expect(result?.media[0].type).toBe("photo");
       expect(result?.media[0].url).toBe(mediaUrl("photo.jpg"));
-      expect(result?.media[0].thumbnailUrl).toBe(
-        mediaUrl("photo_thumb.jpg"),
-      );
+      expect(result?.media[0].thumbnailUrl).toBe(mediaUrl("photo.jpg"));
     });
 
     it("複数の画像メディアを変換できる", async () => {
       const tweet = createFxTweet({
         media: createFxMedia([
-          createFxPhoto({ url: mediaUrl("photo1.jpg") }),
-          createFxPhoto({ url: mediaUrl("photo2.jpg") }),
+          createFxMediaItem({ url: mediaUrl("photo1.jpg") }),
+          createFxMediaItem({ url: mediaUrl("photo2.jpg") }),
         ]),
       });
       mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
@@ -146,6 +149,26 @@ describe("FxTwitterAdapter", () => {
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
 
       expect(result?.media).toHaveLength(2);
+    });
+
+    it("動画メディアを含むツイートを変換できる", async () => {
+      const tweet = createFxTweet({
+        media: createFxMedia([
+          createFxMediaItem({
+            type: "video",
+            url: mediaUrl("video.mp4"),
+            thumbnail_url: mediaUrl("thumb.jpg"),
+          }),
+        ]),
+      });
+      mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
+
+      const result = await adapter.fetchTweet("https://x.com/user/status/123");
+
+      expect(result?.media).toHaveLength(1);
+      expect(result?.media[0].type).toBe("video");
+      expect(result?.media[0].url).toBe(mediaUrl("video.mp4"));
+      expect(result?.media[0].thumbnailUrl).toBe(mediaUrl("thumb.jpg"));
     });
 
     it("メディアがない場合 media は空配列になる", async () => {
