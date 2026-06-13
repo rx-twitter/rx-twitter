@@ -8,15 +8,15 @@
 
 ## 技術スタック
 
-| 項目 | 技術 |
-|------|------|
-| ランタイム | Node.js 24+ |
-| 言語 | TypeScript (ES2022, strict) |
-| Bot フレームワーク | discord.js v14 |
-| キャッシュ / Pub/Sub | Redis 8 (ioredis) |
-| テスト | Vitest |
-| Lint / Format | oxlint / oxfmt |
-| パッケージ管理 | npm workspaces |
+| 項目                 | 技術                        |
+| -------------------- | --------------------------- |
+| ランタイム           | Node.js 24+                 |
+| 言語                 | TypeScript (ES2022, strict) |
+| Bot フレームワーク   | discord.js v14              |
+| キャッシュ / Pub/Sub | Redis 8 (ioredis)           |
+| テスト               | Vitest                      |
+| Lint / Format        | oxlint / oxfmt              |
+| パッケージ管理       | npm workspaces              |
 
 ## ディレクトリ構成
 
@@ -68,7 +68,7 @@ const repository = new RedisChannelConfigRepository();
 const service = new ChannelConfigService(repository); // 依存性を注入
 
 // TwitterAdapter はファクトリメソッド
-const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を compositon
+const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を composition
 ```
 
 **ルール**: `src/index.ts` でのみ DI ワイヤリングを行う。それ以外のファイルで new による依存解決をしない。
@@ -77,11 +77,11 @@ const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を compo
 
 以下のゲートをすべて通過した状態でなければコミット・マージしてはならない。
 
-| ゲート | コマンド | 内容 |
-|--------|----------|------|
-| **Lint** | `npm run lint` (oxlint) | `src/` 以下の全 TypeScript を oxlint でチェック。警告・エラーともにゼロ必須。 |
-| **Compile** | `npm run compile:test` (tsc --noEmit) | TypeScript コンパイルエラーゼロ。パスエイリアス `@/` の解決も含む。 |
-| **Build** | `npm run build` | 本番ビルドが正常に完了すること（clean → shared ビルド → tsc → tsc-alias）。 |
+| ゲート      | コマンド                              | 内容                                                                          |
+| ----------- | ------------------------------------- | ----------------------------------------------------------------------------- |
+| **Lint**    | `npm run lint` (oxlint)               | `src/` 以下の全 TypeScript を oxlint でチェック。警告・エラーともにゼロ必須。 |
+| **Compile** | `npm run compile:test` (tsc --noEmit) | TypeScript コンパイルエラーゼロ。パスエイリアス `@/` の解決も含む。           |
+| **Build**   | `npm run build`                       | 本番ビルドが正常に完了すること（clean → shared ビルド → tsc → tsc-alias）。   |
 
 実装・変更を行ったら、作業完了前に必ず `npm run lint` (`oxlint src/`) と `npm run compile:test` (`tsc --noEmit`) を実行し、通過を確認する。
 
@@ -93,22 +93,23 @@ const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を compo
 <type>(<scope>): <description>
 ```
 
-| type       | 使用場面 |
-|------------|----------|
-| `feat`     | 新機能 |
-| `fix`      | バグ修正 |
-| `chore`    | ビルド・タスク・依存関係 |
-| `docs`     | ドキュメントのみの変更 |
+| type       | 使用場面                         |
+| ---------- | -------------------------------- |
+| `feat`     | 新機能                           |
+| `fix`      | バグ修正                         |
+| `chore`    | ビルド・タスク・依存関係         |
+| `docs`     | ドキュメントのみの変更           |
 | `refactor` | リファクタリング（動作変更なし） |
-| `test`     | テストの追加・修正 |
+| `test`     | テストの追加・修正               |
 | `style`    | フォーマットのみ（動作変更なし） |
-| `ci`       | CI 設定の変更 |
-| `perf`     | パフォーマンス改善 |
-| `revert`   | 変更の打ち消し |
+| `ci`       | CI 設定の変更                    |
+| `perf`     | パフォーマンス改善               |
+| `revert`   | 変更の打ち消し                   |
 
 scope は省略可能。description は日本語でも英語でもよいが、簡潔に変更内容を表すこと。
 
 **例:**
+
 - `feat(dashboard): チャンネル設定画面を追加`
 - `fix: vxTwitter API のタイムアウト処理を修正`
 - `docs: AGENTS.md にコミット規約を追加`
@@ -147,6 +148,7 @@ app:<domain>:<id>:<field>
 ```
 
 例:
+
 - `app:guild:{guildId}:joined` — 参加フラグ
 - `app:guild:{guildId}:channels` — チャンネルキャッシュ
 - `app:config:{guildId}:{channelId}` — チャンネル設定
