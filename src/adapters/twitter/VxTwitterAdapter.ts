@@ -65,7 +65,7 @@ export class VxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
           ? vxData.mediaURLs.map((url) => ({
               url,
               thumbnailUrl: url,
-              type: "photo" as const,
+              type: this.getMediaType(url),
             }))
           : [];
 

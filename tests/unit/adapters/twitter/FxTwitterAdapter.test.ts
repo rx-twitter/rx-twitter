@@ -72,7 +72,6 @@ const createFxMediaWithoutAll = (
   photos: Photo[] = [],
   videos: Video[] = [],
 ): Media => ({
-  all: undefined as unknown as MediaItem[],
   photos,
   videos,
 });

@@ -36,9 +36,9 @@ export interface Author {
 }
 
 export interface Media {
-  all: MediaItem[];
-  photos: Photo[];
-  videos: Video[];
+  all?: MediaItem[];
+  photos?: Photo[];
+  videos?: Video[];
 }
 
 export interface MediaItem {

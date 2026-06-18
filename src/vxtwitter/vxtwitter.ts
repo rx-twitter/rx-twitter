@@ -6,7 +6,7 @@ export interface VxTwitter {
   hashtags: string[];
   likes: number;
   mediaURLs: string[];
-  media_extended: MediaExtended[];
+  media_extended?: MediaExtended[];
   qrt: VxTwitter | null;
   possibly_sensitive: boolean;
   qrtURL: string | null;

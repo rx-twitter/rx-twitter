@@ -311,7 +311,7 @@ describe("VxTwitterAdapter", () => {
           mediaURLs,
           ...(mediaExtended !== undefined
             ? { media_extended: mediaExtended }
-            : { media_extended: undefined as unknown as MediaExtended[] }),
+            : { media_extended: undefined }),
         });
         mockApi.getPostInformation.mockResolvedValue(vxData);
 
@@ -365,7 +365,7 @@ describe("VxTwitterAdapter", () => {
         tweetURL: "https://x.com/quoted_user/status/999",
         text: "Quoted tweet",
         mediaURLs: [mediaUrl("qt_fallback.jpg")],
-        media_extended: undefined as unknown as MediaExtended[],
+        media_extended: undefined,
       });
       const vxData = createVxTwitterData({
         qrt: quotedData,
