@@ -3,10 +3,8 @@ import { mediaUrl } from "../../../fixtures/testMediaUrl";
 
 import type { VxTwitterApi } from "@/vxtwitter/api";
 import { VxTwitterServerError } from "@/vxtwitter/api";
-import type { VxTwitter, MediaExtended, MediaSize } from "@/vxtwitter/vxtwitter";
+import type { VxTwitter, MediaExtended } from "@/vxtwitter/vxtwitter";
 import { VxTwitterAdapter } from "@/adapters/twitter/VxTwitterAdapter";
-
-import type { TweetMedia } from "@/core/models/Tweet";
 
 vi.mock("@/utils/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
