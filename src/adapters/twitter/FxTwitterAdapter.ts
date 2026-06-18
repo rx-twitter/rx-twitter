@@ -48,7 +48,7 @@ export class FxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
       quote = this.convertToTweet(fxData.quote, depth + 1);
     }
 
-    // メディアの変換: media.all を優先して使用（photos/videos を統一的に扱える）
+    // メディアの変換: media.all を優先、なければ photos + videos でフォールバック
     const media: TweetMedia[] = [];
     if (fxData.media?.all) {
       for (const item of fxData.media.all) {
@@ -56,6 +56,24 @@ export class FxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
           url: item.url,
           thumbnailUrl: item.thumbnail_url || item.url,
           type: item.type === "video" || item.type === "animated_gif" ? "video" : "photo",
+        });
+      }
+    } else if (fxData.media) {
+      // Fallback: photos + videos
+      const photos = fxData.media.photos || [];
+      const videos = fxData.media.videos || [];
+      for (const photo of photos) {
+        media.push({
+          url: photo.url,
+          thumbnailUrl: photo.url,
+          type: "photo",
+        });
+      }
+      for (const video of videos) {
+        media.push({
+          url: video.url,
+          thumbnailUrl: video.thumbnail_url,
+          type: "video",
         });
       }
     }
