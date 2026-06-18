@@ -36,14 +36,37 @@ export interface Author {
 }
 
 export interface Media {
-  photos: Photo[];
+  all?: MediaItem[];
+  photos?: Photo[];
+  videos?: Video[];
+}
+
+export interface MediaItem {
+  type: string;
+  id: string;
+  url: string;
+  thumbnail_url?: string;
+  width?: number;
+  height?: number;
+  altText?: string;
 }
 
 export interface Photo {
   type: string;
-  thumbnail_url: string;
+  id: string;
   url: string;
   width: number;
   height: number;
-  altText: string;
+  altText?: string;
+}
+
+export interface Video {
+  id: string;
+  url: string;
+  thumbnail_url: string;
+  duration: number;
+  width: number;
+  height: number;
+  format: string;
+  type: string;
 }

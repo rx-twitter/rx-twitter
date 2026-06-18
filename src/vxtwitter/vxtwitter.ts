@@ -6,7 +6,7 @@ export interface VxTwitter {
   hashtags: string[];
   likes: number;
   mediaURLs: string[];
-  media_extended: MediaExtended[];
+  media_extended?: MediaExtended[];
   qrt: VxTwitter | null;
   possibly_sensitive: boolean;
   qrtURL: string | null;
@@ -20,10 +20,15 @@ export interface VxTwitter {
   user_screen_name: string;
 }
 
-interface MediaExtended {
+export interface MediaExtended {
   altText: string | null;
-  size: object[];
+  size: MediaSize;
   thumbnail_url: string;
   type: string;
   url: string;
+}
+
+export interface MediaSize {
+  height: number;
+  width: number;
 }

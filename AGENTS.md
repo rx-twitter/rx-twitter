@@ -8,15 +8,24 @@
 
 ## 技術スタック
 
-| 項目 | 技術 |
-|------|------|
-| ランタイム | Node.js 24+ |
-| 言語 | TypeScript (ES2022, strict) |
-| Bot フレームワーク | discord.js v14 |
-| キャッシュ / Pub/Sub | Redis 8 (ioredis) |
-| テスト | Vitest |
-| Lint / Format | oxlint / oxfmt |
-| パッケージ管理 | npm workspaces |
+| 項目                 | 技術                        |
+| -------------------- | --------------------------- |
+| ランタイム           | Node.js 24+                 |
+| 言語                 | TypeScript (ES2022, strict) |
+| Bot フレームワーク   | discord.js v14              |
+| キャッシュ / Pub/Sub | Redis 8 (ioredis)           |
+| テスト               | Vitest                      |
+| Lint / Format        | oxlint / oxfmt              |
+| パッケージ管理       | npm workspaces              |
+
+## 外部 API 仕様
+
+Bot は以下の外部 API からツイート情報を取得する。型定義・実装時は各仕様書を参照すること。
+
+| API                       | ベースURL                                                   | 仕様書                                                                 |
+| ------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------- |
+| FxTwitter (FxEmbed)       | `https://api.fxtwitter.com/2/status/{id}`                   | [docs.fxembed.com/api/twitter/](https://docs.fxembed.com/api/twitter/) |
+| VxTwitter (BetterTwitFix) | `https://api.vxtwitter.com/{screen_name}/status/{tweet_id}` | [docs/vxtwitter_api.md](./docs/vxtwitter_api.md)                       |
 
 ## ディレクトリ構成
 
@@ -77,13 +86,34 @@ const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を compo
 
 以下のゲートをすべて通過した状態でなければコミット・マージしてはならない。
 
-| ゲート | コマンド | 内容 |
-|--------|----------|------|
-| **Lint** | `npm run lint` (oxlint) | `src/` 以下の全 TypeScript を oxlint でチェック。警告・エラーともにゼロ必須。 |
-| **Compile** | `npm run compile:test` (tsc --noEmit) | TypeScript コンパイルエラーゼロ。パスエイリアス `@/` の解決も含む。 |
-| **Build** | `npm run build` | 本番ビルドが正常に完了すること（clean → shared ビルド → tsc → tsc-alias）。 |
+| ゲート      | コマンド                              | 内容                                                                          |
+| ----------- | ------------------------------------- | ----------------------------------------------------------------------------- |
+| **Lint**    | `npm run lint` (oxlint)               | `src/` 以下の全 TypeScript を oxlint でチェック。警告・エラーともにゼロ必須。 |
+| **Compile** | `npm run compile:test` (tsc --noEmit) | TypeScript コンパイルエラーゼロ。パスエイリアス `@/` の解決も含む。           |
+| **Build**   | `npm run build`                       | 本番ビルドが正常に完了すること（clean → shared ビルド → tsc → tsc-alias）。   |
 
 実装・変更を行ったら、作業完了前に必ず `npm run lint` (`oxlint src/`) と `npm run compile:test` (`tsc --noEmit`) を実行し、通過を確認する。
+
+### コミット前の未使用import確認
+
+`npm run lint` 通過後、未使用 import 等の修正可能な警告（oxlint の `no-unused-vars` / `prefer-import-type` 等）が検出された場合、以下の手順で対応する：
+
+1. **影響範囲の確認**: 該当の import が副作用目的（`import "module"` 形式）でないか、型だけの import で安全に削除できるかを確認する。
+   - 型のみの import → `import type` に変更すれば安全
+   - 純粋な未使用 import → 削除して安全
+   - `import "side-effect-module"` 形式 → 削除不可、そのまま維持
+2. **ユーザーへの確認**: 安全と判断した場合、ユーザーに「未使用 import を修正しますか？」と聞き、承諾を得てから `npx oxlint --fix-suggestions src/` を実行する。
+   - `--fix-suggestions` を使う理由: 未使用 import の削除はプログラムの振る舞いを変える可能性がある修正（suggestion）に分類されるため、通常の `--fix` ではなく `--fix-suggestions` が必要。
+   - 代替: `--fix-dangerously` でも削除可能だが、より攻撃的な修正も含むので `--fix-suggestions` を推奨。
+3. **再チェック**: 修正後、再度 `npm run lint` と `npm run compile:test` を実行し、問題がないことを確認する。
+
+```bash
+# 未使用 import 等の検出のみ
+npx oxlint -D no-unused-vars src/
+
+# ユーザー確認後、自動修正
+npx oxlint --fix-suggestions src/
+```
 
 ## コミットメッセージ規約
 
@@ -93,22 +123,23 @@ const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を compo
 <type>(<scope>): <description>
 ```
 
-| type       | 使用場面 |
-|------------|----------|
-| `feat`     | 新機能 |
-| `fix`      | バグ修正 |
-| `chore`    | ビルド・タスク・依存関係 |
-| `docs`     | ドキュメントのみの変更 |
+| type       | 使用場面                         |
+| ---------- | -------------------------------- |
+| `feat`     | 新機能                           |
+| `fix`      | バグ修正                         |
+| `chore`    | ビルド・タスク・依存関係         |
+| `docs`     | ドキュメントのみの変更           |
 | `refactor` | リファクタリング（動作変更なし） |
-| `test`     | テストの追加・修正 |
+| `test`     | テストの追加・修正               |
 | `style`    | フォーマットのみ（動作変更なし） |
-| `ci`       | CI 設定の変更 |
-| `perf`     | パフォーマンス改善 |
-| `revert`   | 変更の打ち消し |
+| `ci`       | CI 設定の変更                    |
+| `perf`     | パフォーマンス改善               |
+| `revert`   | 変更の打ち消し                   |
 
 scope は省略可能。description は日本語でも英語でもよいが、簡潔に変更内容を表すこと。
 
 **例:**
+
 - `feat(dashboard): チャンネル設定画面を追加`
 - `fix: vxTwitter API のタイムアウト処理を修正`
 - `docs: AGENTS.md にコミット規約を追加`
@@ -147,6 +178,7 @@ app:<domain>:<id>:<field>
 ```
 
 例:
+
 - `app:guild:{guildId}:joined` — 参加フラグ
 - `app:guild:{guildId}:channels` — チャンネルキャッシュ
 - `app:config:{guildId}:{channelId}` — チャンネル設定
