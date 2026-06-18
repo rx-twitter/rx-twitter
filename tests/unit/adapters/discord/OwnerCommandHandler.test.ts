@@ -1,3 +1,5 @@
+/* oxlint-disable typescript-eslint/no-explicit-any */
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/utils/logger", () => ({

@@ -1,3 +1,5 @@
+/* oxlint-disable typescript-eslint/no-explicit-any */
+
 import { EventEmitter } from "node:events";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mediaUrl } from "../../fixtures/testMediaUrl";

@@ -23,7 +23,7 @@
     "test:e2e": "vitest run tests/e2e",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "lint": "oxlint src/",
+    "lint": "oxlint src/ tests/",
     "format": "oxfmt src/"
   },
   "husky": {

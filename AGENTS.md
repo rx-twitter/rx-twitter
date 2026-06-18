@@ -88,11 +88,11 @@ const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を compo
 
 | ゲート      | コマンド                              | 内容                                                                          |
 | ----------- | ------------------------------------- | ----------------------------------------------------------------------------- |
-| **Lint**    | `npm run lint` (oxlint)               | `src/` 以下の全 TypeScript を oxlint でチェック。警告・エラーともにゼロ必須。 |
+| **Lint**    | `npm run lint` (oxlint)               | `src/` および `tests/` 以下の全 TypeScript を oxlint でチェック。警告・エラーともにゼロ必須。 |
 | **Compile** | `npm run compile:test` (tsc --noEmit) | TypeScript コンパイルエラーゼロ。パスエイリアス `@/` の解決も含む。           |
 | **Build**   | `npm run build`                       | 本番ビルドが正常に完了すること（clean → shared ビルド → tsc → tsc-alias）。   |
 
-実装・変更を行ったら、作業完了前に必ず `npm run lint` (`oxlint src/`) と `npm run compile:test` (`tsc --noEmit`) を実行し、通過を確認する。
+実装・変更を行ったら、作業完了前に必ず `npm run lint` (`oxlint src/ tests/`) と `npm run compile:test` (`tsc --noEmit`) を実行し、通過を確認する。
 
 ### コミット前の未使用import確認
 
