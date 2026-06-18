@@ -1,11 +1,10 @@
-/* oxlint-disable typescript-eslint/no-explicit-any */
-
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/utils/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
 
+import type { Message } from "discord.js";
 import { OwnerCommandHandler } from "@/adapters/discord/OwnerCommandHandler";
 import { BanService } from "@/core/services/BanService";
 
@@ -28,26 +27,39 @@ class MockCollection<K, V> extends Map<K, V> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const createMockClient = (): any => ({
+interface MockGuild {
+  id: string;
+  name: string;
+  memberCount?: number;
+  leave: ReturnType<typeof vi.fn>;
+}
+
+interface MockClient {
+  user: { id: string };
+  guilds: {
+    cache: MockCollection<string, MockGuild>;
+  };
+}
+
+const createMockClient = (): MockClient => ({
   user: { id: "bot-id" },
   guilds: {
-    cache: new MockCollection<string, any>(),
+    cache: new MockCollection<string, MockGuild>(),
   },
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const createMockMessage = (overrides: Record<string, unknown> = {}): any => ({
-  author: { bot: false, id: "owner-id" },
-  guildId: null, // DM
-  content: "",
-  reply: vi.fn().mockResolvedValue({ id: "reply-id" }),
-  ...overrides,
-});
+const createMockMessage = (overrides: Record<string, unknown> = {}): Message<boolean> =>
+  ({
+    author: { bot: false, id: "owner-id" },
+    guildId: null, // DM
+    content: "",
+    reply: vi.fn().mockResolvedValue({ id: "reply-id" }),
+    ...overrides,
+  }) as unknown as Message<boolean>;
 
 describe("OwnerCommandHandler", () => {
   let mockBanService: BanService;
-  let mockClient: ReturnType<typeof createMockClient>;
+  let mockClient: MockClient;
   let handler: OwnerCommandHandler;
 
   const OWNER_ID = "owner-id";
@@ -67,7 +79,11 @@ describe("OwnerCommandHandler", () => {
     } as unknown as BanService;
 
     mockClient = createMockClient();
-    handler = new OwnerCommandHandler(OWNER_ID, mockBanService, mockClient);
+    handler = new OwnerCommandHandler(
+      OWNER_ID,
+      mockBanService,
+      mockClient as unknown as ConstructorParameters<typeof OwnerCommandHandler>[2],
+    );
   });
 
   describe("handleMessage - ガード条件", () => {
@@ -313,6 +329,7 @@ describe("OwnerCommandHandler", () => {
         id: "guild-1",
         name: "Test Guild",
         memberCount: 100,
+        leave: vi.fn(),
       });
       vi.mocked(mockBanService.listBans).mockResolvedValue([]);
 
