@@ -1,4 +1,4 @@
-name: Publish @twitterrx/shared
+name: Publish @rx-twitter/shared
 
 on:
   push:
@@ -25,15 +25,15 @@ jobs:
         with:
           node-version: 24.x
           registry-url: "https://npm.pkg.github.com"
-          scope: "@twitterrx"
+          scope: "@rx-twitter"
 
       - name: Install dependencies
-        run: npm ci --workspace=@twitterrx/shared
+        run: npm ci --workspace=@rx-twitter/shared
 
       - name: Build
-        run: npm run build --workspace=@twitterrx/shared
+        run: npm run build --workspace=@rx-twitter/shared
 
       - name: Publish to GitHub Packages
-        run: npm publish --workspace=@twitterrx/shared
+        run: npm publish --workspace=@rx-twitter/shared
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
