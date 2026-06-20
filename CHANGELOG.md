@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.4.0](https://github.com/twitterrx/discord-twitter-embed-rx/compare/v2.3.0...v2.4.0) (2026-06-18)
+
+
+### Features
+
+* **adapters:** media_extended/media.all のフォールバック対応と animated_gif 統一 ([977b36a](https://github.com/twitterrx/discord-twitter-embed-rx/commit/977b36ac855dc4e88599a73545c7ee3837e271bd))
+* vxTwitter/FxTwitterのメディアURL取得をmedia_extended/media.allに変更 ([e9e8b56](https://github.com/twitterrx/discord-twitter-embed-rx/commit/e9e8b56529cc98bae0bc7a5d8ead785ff248a1c4))
+* vxTwitter/FxTwitterのメディアURL取得をmedia_extended/media.allに変更 ([a496a3d](https://github.com/twitterrx/discord-twitter-embed-rx/commit/a496a3dc04295dd14103392c5c6afb6174c28df9))
+
+
+### Bug Fixes
+
+* Media型のoptionalフィールド修正とフォールバック時のtype判定修正 ([052bd53](https://github.com/twitterrx/discord-twitter-embed-rx/commit/052bd53fcb71f2a650890679e214ff541b85d801))
+
 ## [2.3.0](https://github.com/twitterrx/discord-twitter-embed-rx/compare/v2.2.0...v2.3.0) (2026-06-11)
 
 
