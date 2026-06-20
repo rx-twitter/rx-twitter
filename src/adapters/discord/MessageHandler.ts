@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import path from "node:path";
 
-import { DEFAULT_MAX_URLS_PER_MESSAGE } from "@twitterrx/shared";
+import { DEFAULT_MAX_URLS_PER_MESSAGE } from "@rx-twitter/shared";
 import {
   ActionRowBuilder,
   AttachmentBuilder,

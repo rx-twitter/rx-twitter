@@ -8,7 +8,7 @@ import {
   vi,
 } from "vitest";
 
-import type { IChannelConfigRepository, GuildConfig } from "@twitterrx/shared";
+import type { IChannelConfigRepository, GuildConfig } from "@rx-twitter/shared";
 
 vi.mock("@/utils/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
