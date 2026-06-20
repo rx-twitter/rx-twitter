@@ -1,5 +1,5 @@
 {
-  "name": "discord-twitter-embed-rx",
+  "name": "rx-twitter",
   "version": "2.3.0",
   "private": true,
   "description": "",
@@ -7,15 +7,15 @@
     "discord",
     "twitter"
   ],
-  "homepage": "https://github.com/t1nyb0x/discord-twitter-embed-rx#readme",
+  "homepage": "https://github.com/rx-twitter/rx-twitter#readme",
   "bugs": {
-    "url": "https://github.com/t1nyb0x/discord-twitter-embed-rx/issues"
+    "url": "https://github.com/rx-twitter/rx-twitter/issues"
   },
   "license": "MIT",
   "author": "t1nyb0x",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/t1nyb0x/discord-twitter-embed-rx.git"
+    "url": "git+https://github.com/rx-twitter/rx-twitter.git"
   },
   "workspaces": [
     "packages/*"
@@ -30,7 +30,7 @@
     "compile": "npm run clean && tsc -p . && tsc-alias --resolve-full-paths",
     "compile:test": "tsc -p . --noEmit",
     "build": "npm run build:shared && npm run compile",
-    "build:shared": "npm run build --workspace=@twitterrx/shared",
+    "build:shared": "npm run build --workspace=@rx-twitter/shared",
     "test": "vitest",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
