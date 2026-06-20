@@ -25,7 +25,7 @@ describe("E2E: チャンネル設定機能", () => {
       // Repository と Service を初期化
       configRepository = new RedisChannelConfigRepository();
       configService = new ChannelConfigService(configRepository);
-    } catch (err) {
+    } catch {
       console.warn("[E2E] Skipping tests: Redis is not available");
       redisAvailable = false;
     }
