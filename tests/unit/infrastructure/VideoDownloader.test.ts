@@ -1,4 +1,5 @@
 import { EventEmitter } from "node:events";
+import type { IncomingMessage, ClientRequest } from "node:http";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mediaUrl } from "../../fixtures/testMediaUrl";
 
@@ -9,7 +10,7 @@ vi.mock("node:https", () => ({ get: vi.fn() }));
 vi.mock("node:http", () => ({ get: vi.fn() }));
 
 // モック後にインポート
-import { createWriteStream } from "node:fs";
+import { createWriteStream, type WriteStream } from "node:fs";
 import * as httpsModule from "node:https";
 import * as httpModule from "node:http";
 import { VideoDownloader } from "@/infrastructure/http/VideoDownloader";
@@ -20,18 +21,38 @@ vi.mock("@/utils/logger", () => ({
 
 /** 書き込みストリームのモックを生成 */
 const createMockWriteStream = () => {
-  const stream = new EventEmitter() as ReturnType<typeof createWriteStream>;
-  (stream as any).close = vi.fn(); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const stream = Object.assign(new EventEmitter() as EventEmitter, {
+    close: vi.fn().mockReturnThis(),
+  }) as unknown as WriteStream;
   return stream;
 };
 
 /** HTTP レスポンスのモックを生成 */
 const createMockResponse = (statusCode: number) => {
-  const response = new EventEmitter() as any; // eslint-disable-line @typescript-eslint/no-explicit-any
-  response.statusCode = statusCode;
-  response.resume = vi.fn();
-  response.pipe = vi.fn();
+  const response = Object.assign(new EventEmitter() as EventEmitter, {
+    statusCode,
+    resume: vi.fn(),
+    pipe: vi.fn(),
+  }) as unknown as IncomingMessage;
   return response;
+};
+
+/** http.get / https.get のモック実装をセットアップ */
+const setupHttpGetMock = (
+  mockResponse: IncomingMessage,
+  mockRequest?: EventEmitter,
+) => {
+  const req = mockRequest ?? new EventEmitter();
+  (vi.mocked(httpModule.get) as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+    (_url: unknown, _optionsOrCb: unknown, maybeCb?: unknown) => {
+      const callback = maybeCb ?? _optionsOrCb;
+      if (typeof callback === "function") {
+        callback(mockResponse);
+      }
+      return req;
+    },
+  );
+  return req as unknown as ClientRequest;
 };
 
 describe("VideoDownloader", () => {
@@ -48,18 +69,11 @@ describe("VideoDownloader", () => {
       vi.mocked(createWriteStream).mockReturnValue(mockWriteStream);
 
       const mockResponse = createMockResponse(200);
-      mockResponse.pipe.mockImplementation(() => {
+      mockResponse.pipe = vi.fn().mockImplementation(() => {
         process.nextTick(() => mockWriteStream.emit("finish"));
       });
 
-      const mockRequest = new EventEmitter();
-      vi.mocked(httpModule.get as any).mockImplementation(
-        (_url: any, callback: any) => {
-          // eslint-disable-line @typescript-eslint/no-explicit-any
-          callback(mockResponse);
-          return mockRequest;
-        },
-      );
+      setupHttpGetMock(mockResponse);
 
       await expect(
         downloader.download(mediaUrl("video.mp4"), "/tmp/test.mp4"),
@@ -67,7 +81,7 @@ describe("VideoDownloader", () => {
 
       expect(createWriteStream).toHaveBeenCalledWith("/tmp/test.mp4");
       expect(mockResponse.pipe).toHaveBeenCalledWith(mockWriteStream);
-      expect((mockWriteStream as any).close).toHaveBeenCalled(); // eslint-disable-line @typescript-eslint/no-explicit-any
+      expect(mockWriteStream.close).toHaveBeenCalled();
     });
 
     it("HTTP URL をダウンロードできる", async () => {
@@ -75,18 +89,11 @@ describe("VideoDownloader", () => {
       vi.mocked(createWriteStream).mockReturnValue(mockWriteStream);
 
       const mockResponse = createMockResponse(200);
-      mockResponse.pipe.mockImplementation(() => {
+      mockResponse.pipe = vi.fn().mockImplementation(() => {
         process.nextTick(() => mockWriteStream.emit("finish"));
       });
 
-      const mockRequest = new EventEmitter();
-      vi.mocked(httpModule.get as any).mockImplementation(
-        (_url: any, callback: any) => {
-          // eslint-disable-line @typescript-eslint/no-explicit-any
-          callback(mockResponse);
-          return mockRequest;
-        },
-      );
+      setupHttpGetMock(mockResponse);
 
       await expect(
         downloader.download(mediaUrl("video.mp4"), "/tmp/test.mp4"),
@@ -98,15 +105,8 @@ describe("VideoDownloader", () => {
 
     it("HTTP 200 以外のレスポンス（例: 404）は reject する", async () => {
       const mockResponse = createMockResponse(404);
-      const mockRequest = new EventEmitter();
 
-      vi.mocked(httpModule.get as any).mockImplementation(
-        (_url: any, callback: any) => {
-          // eslint-disable-line @typescript-eslint/no-explicit-any
-          callback(mockResponse);
-          return mockRequest;
-        },
-      );
+      setupHttpGetMock(mockResponse);
 
       await expect(
         downloader.download(mediaUrl("video.mp4"), "/tmp/test.mp4"),
@@ -117,7 +117,9 @@ describe("VideoDownloader", () => {
 
     it("リクエストエラーが発生した場合 reject する", async () => {
       const mockRequest = new EventEmitter();
-      vi.mocked(httpModule.get as any).mockImplementation(() => mockRequest); // eslint-disable-line @typescript-eslint/no-explicit-any
+      (vi.mocked(httpModule.get) as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+        () => mockRequest,
+      );
 
       const downloadPromise = downloader.download(
         mediaUrl("video.mp4"),
@@ -133,26 +135,19 @@ describe("VideoDownloader", () => {
       vi.mocked(createWriteStream).mockReturnValue(mockWriteStream);
 
       const mockResponse = createMockResponse(200);
-      mockResponse.pipe.mockImplementation(() => {
+      mockResponse.pipe = vi.fn().mockImplementation(() => {
         process.nextTick(() =>
           mockWriteStream.emit("error", new Error("disk full")),
         );
       });
 
-      const mockRequest = new EventEmitter();
-      vi.mocked(httpModule.get as any).mockImplementation(
-        (_url: any, callback: any) => {
-          // eslint-disable-line @typescript-eslint/no-explicit-any
-          callback(mockResponse);
-          return mockRequest;
-        },
-      );
+      setupHttpGetMock(mockResponse);
 
       await expect(
         downloader.download(mediaUrl("video.mp4"), "/tmp/test.mp4"),
       ).rejects.toThrow("disk full");
 
-      expect((mockWriteStream as any).close).toHaveBeenCalled(); // eslint-disable-line @typescript-eslint/no-explicit-any
+      expect(mockWriteStream.close).toHaveBeenCalled();
     });
   });
 });

@@ -1,13 +1,30 @@
 {
-  "name": "discord-twitter-embed-rx",
+  "name": "rx-twitter",
   "version": "2.4.0",
   "description": "",
   "type": "module",
   "main": "index.js",
   "private": true,
+  "description": "",
+  "keywords": [
+    "discord",
+    "twitter"
+  ],
+  "homepage": "https://github.com/rx-twitter/rx-twitter#readme",
+  "bugs": {
+    "url": "https://github.com/rx-twitter/rx-twitter/issues"
+  },
+  "license": "MIT",
+  "author": "t1nyb0x",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rx-twitter/rx-twitter.git"
+  },
   "workspaces": [
     "packages/*"
   ],
+  "type": "module",
+  "main": "index.js",
   "scripts": {
     "start": "node --env-file=.env dist/index.js",
     "start:docker": "node ./dist/index.js",
@@ -16,35 +33,28 @@
     "compile": "npm run clean && tsc -p . && tsc-alias --resolve-full-paths",
     "compile:test": "tsc -p . --noEmit",
     "build": "npm run build:shared && npm run compile",
-    "build:shared": "npm run build --workspace=@twitterrx/shared",
+    "build:shared": "npm run build --workspace=@rx-twitter/shared",
     "test": "vitest",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "vitest run tests/e2e",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "lint": "oxlint src/",
+    "lint": "oxlint src/ tests/",
     "format": "oxfmt src/"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+  "dependencies": {
+    "@discordjs/builders": "^1.9.0",
+    "@hono/node-server": "^2.0.4",
+    "@rx-twitter/shared": "*",
+    "chalk": "^5.3.0",
+    "discord.js": "^14.26.3",
+    "hono": "^4.12.25",
+    "js-yaml": "^4.1.0",
+    "redis": "^5.7.0",
+    "winston": "^3.17.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/t1nyb0x/discord-twitter-embed-rx.git"
-  },
-  "keywords": [
-    "discord",
-    "twitter"
-  ],
-  "author": "t1nyb0x",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/t1nyb0x/discord-twitter-embed-rx/issues"
-  },
-  "homepage": "https://github.com/t1nyb0x/discord-twitter-embed-rx#readme",
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.10.1",
@@ -60,16 +70,9 @@
     "typescript": "^6.0.0",
     "vitest": "^4.0.13"
   },
-  "dependencies": {
-    "@discordjs/builders": "^1.9.0",
-    "@hono/node-server": "^2.0.4",
-    "@twitterrx/shared": "*",
-    "chalk": "^5.3.0",
-    "discord.js": "^14.26.3",
-    "hono": "^4.12.25",
-    "js-yaml": "^4.2.0",
-    "redis": "^5.7.0",
-    "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

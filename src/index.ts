@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { DASHBOARD_VERSION_FALLBACK, DASHBOARD_VERSION_KEY } from "@twitterrx/shared";
+import { DASHBOARD_VERSION_FALLBACK, DASHBOARD_VERSION_KEY } from "@rx-twitter/shared";
 import { Client, GatewayIntentBits, Message, Partials, ChannelType } from "discord.js";
 
 import { DiscordEmbedBuilder } from "@/adapters/discord/EmbedBuilder";

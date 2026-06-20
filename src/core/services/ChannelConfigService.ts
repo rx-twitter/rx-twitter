@@ -1,5 +1,5 @@
-import type { ConfigResult, IChannelConfigRepository } from "@twitterrx/shared";
-import { DEFAULT_MAX_URLS_PER_MESSAGE, MAX_URLS_PER_MESSAGE_LIMIT } from "@twitterrx/shared";
+import type { ConfigResult, IChannelConfigRepository } from "@rx-twitter/shared";
+import { DEFAULT_MAX_URLS_PER_MESSAGE, MAX_URLS_PER_MESSAGE_LIMIT } from "@rx-twitter/shared";
 
 import logger from "@/utils/logger";
 

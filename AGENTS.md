@@ -77,7 +77,7 @@ const repository = new RedisChannelConfigRepository();
 const service = new ChannelConfigService(repository); // 依存性を注入
 
 // TwitterAdapter はファクトリメソッド
-const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を compositon
+const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を composition
 ```
 
 **ルール**: `src/index.ts` でのみ DI ワイヤリングを行う。それ以外のファイルで new による依存解決をしない。
@@ -86,13 +86,13 @@ const adapter = TwitterAdapter.createDefault(); // ← 内部で Vx/Fx を compo
 
 以下のゲートをすべて通過した状態でなければコミット・マージしてはならない。
 
-| ゲート      | コマンド                              | 内容                                                                          |
-| ----------- | ------------------------------------- | ----------------------------------------------------------------------------- |
-| **Lint**    | `npm run lint` (oxlint)               | `src/` 以下の全 TypeScript を oxlint でチェック。警告・エラーともにゼロ必須。 |
-| **Compile** | `npm run compile:test` (tsc --noEmit) | TypeScript コンパイルエラーゼロ。パスエイリアス `@/` の解決も含む。           |
-| **Build**   | `npm run build`                       | 本番ビルドが正常に完了すること（clean → shared ビルド → tsc → tsc-alias）。   |
+| ゲート      | コマンド                              | 内容                                                                                          |
+| ----------- | ------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Lint**    | `npm run lint` (oxlint)               | `src/` および `tests/` 以下の全 TypeScript を oxlint でチェック。警告・エラーともにゼロ必須。 |
+| **Compile** | `npm run compile:test` (tsc --noEmit) | TypeScript コンパイルエラーゼロ。パスエイリアス `@/` の解決も含む。                           |
+| **Build**   | `npm run build`                       | 本番ビルドが正常に完了すること（clean → shared ビルド → tsc → tsc-alias）。                   |
 
-実装・変更を行ったら、作業完了前に必ず `npm run lint` (`oxlint src/`) と `npm run compile:test` (`tsc --noEmit`) を実行し、通過を確認する。
+実装・変更を行ったら、作業完了前に必ず `npm run lint` (`oxlint src/ tests/`) と `npm run compile:test` (`tsc --noEmit`) を実行し、通過を確認する。
 
 ### コミット前の未使用import確認
 
