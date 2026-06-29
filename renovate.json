@@ -3,5 +3,11 @@
   "baseBranchPatterns": ["develop"],
   "extends": ["config:best-practices"],
   "minimumReleaseAge": "7 days",
-  "postUpdateOptions": ["npmDedupe"]
+  "postUpdateOptions": ["npmDedupe"],
+  "hostRules": [
+    {
+      "matchHost": "github.com",
+      "token": "{{ secrets.GITHUB_TOKEN }}"
+    }
+  ]
 }
