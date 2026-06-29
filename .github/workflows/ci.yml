@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@b9e0990d219a03df7633c93f6f005a8fecbcab22 #v7.0.0
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@6a61c0375d66246de94630495909f12cf8dac84d #v6
         with:
           node-version: 24.x
           cache: "npm"
@@ -23,7 +23,7 @@ jobs:
         run: npm run build:shared
 
       - name: Cache node_modules
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@5b7a9f8ae54e16fe74b141e0cd16a8aa366217c4 #v5
         with:
           path: |
             node_modules
@@ -36,16 +36,16 @@ jobs:
     needs: setup
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@b9e0990d219a03df7633c93f6f005a8fecbcab22 #v7.0.0
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@6a61c0375d66246de94630495909f12cf8dac84d #v6
         with:
           node-version: 24.x
           cache: "npm"
 
       - name: Restore node_modules
         id: restore
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@5b7a9f8ae54e16fe74b141e0cd16a8aa366217c4 #v5
         with:
           path: |
             node_modules
@@ -67,7 +67,7 @@ jobs:
         run: npm run test:coverage
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f #v7.0.0
         with:
           files: ./coverage/coverage-final.json
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -77,16 +77,16 @@ jobs:
     needs: test
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@b9e0990d219a03df7633c93f6f005a8fecbcab22 #v7.0.0
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@6a61c0375d66246de94630495909f12cf8dac84d #v6
         with:
           node-version: 24.x
           cache: "npm"
 
       - name: Restore node_modules
         id: restore
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@5b7a9f8ae54e16fe74b141e0cd16a8aa366217c4 #v5
         with:
           path: |
             node_modules

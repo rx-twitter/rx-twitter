@@ -13,12 +13,12 @@ jobs:
   hadolint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@b9e0990d219a03df7633c93f6f005a8fecbcab22 #v7.0.0
         with:
           fetch-depth: 1
 
       - name: Lint Bot Dockerfile
-        uses: hadolint/hadolint-action@v3.3.0
+        uses: hadolint/hadolint-action@0931ae097296863e5f188b8c6a0c5f9b95f79793 #v3.3.0
         with:
           dockerfile: Dockerfile
 
@@ -29,7 +29,7 @@ jobs:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@b9e0990d219a03df7633c93f6f005a8fecbcab22 #v7.0.0
 
       - name: Set Env
         run: |
