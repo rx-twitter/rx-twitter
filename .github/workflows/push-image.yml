@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 1
 
       - name: Lint Bot Dockerfile
-        uses: hadolint/hadolint-action@0931ae097296863e5f188b8c6a0c5f9b95f79793 #v3.3.0
+        uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5 # v3.3.0
         with:
           dockerfile: Dockerfile
 
