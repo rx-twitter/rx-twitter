@@ -56,19 +56,19 @@
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.9",
-    "@types/node": "^24.12.2",
-    "@vitest/coverage-v8": "^4.1.4",
-    "@vitest/ui": "^4.1.4",
-    "husky": "^9.1.6",
-    "lint-staged": "^17.0.0",
-    "oxfmt": "^0.56.0",
-    "oxlint": "^1.59.0",
-    "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.16",
-    "tsx": "^4.21.0",
-    "typescript": "^6.0.0",
-    "vitest": "^4.1.4"
+    "@types/js-yaml": "4.0.9",
+    "@types/node": "24.13.2",
+    "@vitest/coverage-v8": "4.1.9",
+    "@vitest/ui": "4.1.9",
+    "husky": "9.1.7",
+    "lint-staged": "17.0.8",
+    "oxfmt": "0.56.0",
+    "oxlint": "1.71.0",
+    "ts-node": "10.9.2",
+    "tsc-alias": "1.8.16",
+    "tsx": "4.22.4",
+    "typescript": "6.0.3",
+    "vitest": "4.1.9"
   },
   "husky": {
     "hooks": {
