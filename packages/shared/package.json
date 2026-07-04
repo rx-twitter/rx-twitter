@@ -29,6 +29,6 @@
   "author": "t1nyb0x",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^6.0.0"
+    "typescript": "6.0.3"
   }
 }

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import yaml from "js-yaml";
+import { load } from "js-yaml";
 
 // ESM では import.meta.url から __dirname を取得
 const __filename = fileURLToPath(import.meta.url);
@@ -30,7 +30,7 @@ const configPath = path.join(ROOT_DIR, ".config/config.yml");
 let config: any = {};
 try {
   const fileContents = fs.readFileSync(configPath, "utf8");
-  config = yaml.load(fileContents);
+  config = load(fileContents);
 } catch (e) {
   console.error("設定ファイルの読み込みに失敗しました。config.ymlを確認してください", e);
 }
