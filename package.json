@@ -1,11 +1,10 @@
 {
   "name": "rx-twitter",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "",
   "type": "module",
   "main": "index.js",
   "private": true,
-  "description": "",
   "keywords": [
     "discord",
     "twitter"
@@ -23,8 +22,6 @@
   "workspaces": [
     "packages/*"
   ],
-  "type": "module",
-  "main": "index.js",
   "scripts": {
     "start": "node --env-file=.env dist/index.js",
     "start:docker": "node ./dist/index.js",

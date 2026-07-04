@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.4.1](https://github.com/rx-twitter/rx-twitter/compare/v2.4.0...v2.4.1) (2026-07-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency js-yaml to v5 ([a824717](https://github.com/rx-twitter/rx-twitter/commit/a82471706bccf7ce6612155acc8de5af56ba5bcc))
+* **deps:** update dependency js-yaml to v5 ([c2a8b52](https://github.com/rx-twitter/rx-twitter/commit/c2a8b52cd08ffe90e7342337a1d1e3e557ac48f0))
+* **deps:** update dependency redis to v6 ([a36d3fa](https://github.com/rx-twitter/rx-twitter/commit/a36d3fa2e6cfca523d42280ef34b0f2c1812492b))
+* **deps:** update dependency redis to v6 ([dffed48](https://github.com/rx-twitter/rx-twitter/commit/dffed487e251f0010c358e8122f930d656b9ada3))
+* DMのintentを設定 ([0099925](https://github.com/rx-twitter/rx-twitter/commit/009992580d009549f7a4c4049d8b1b57ded167d3))
+* DMのintentを設定 ([a9269c8](https://github.com/rx-twitter/rx-twitter/commit/a9269c8f32c6692f5b207f7d9e5298c9babd88a7))
+
 ## [2.4.0](https://github.com/twitterrx/discord-twitter-embed-rx/compare/v2.3.0...v2.4.0) (2026-06-18)
 
 
