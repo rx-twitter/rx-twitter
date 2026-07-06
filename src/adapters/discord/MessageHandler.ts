@@ -123,9 +123,6 @@ export class MessageHandler {
       messageId: message.id,
     });
 
-    // 元メッセージの埋め込みを抑制
-    await message.suppressEmbeds(true);
-
     // 通常URLの処理
     await this.processUrls(client, message, normal, false);
 
@@ -138,6 +135,9 @@ export class MessageHandler {
       totalUrls: urls.length,
       duration: `${duration}ms`,
     });
+
+    // 元メッセージの埋め込みを抑制
+    await message.suppressEmbeds(true);
   }
 
   /**
