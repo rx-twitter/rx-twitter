@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.4.2](https://github.com/rx-twitter/rx-twitter/compare/v2.4.1...v2.4.2) (2026-07-07)
+
+
+### Bug Fixes
+
+* suppressEmbedsを遅らせた ([bb73d15](https://github.com/rx-twitter/rx-twitter/commit/bb73d15055ba63d773550a07c46c22c6b676405e))
+* suppressEmbedsを遅らせた。[#63](https://github.com/rx-twitter/rx-twitter/issues/63)の軽減 ([3aede93](https://github.com/rx-twitter/rx-twitter/commit/3aede935d23be0b5f118e40d0322ade7be43ade4))
+* suppressEmbedsを遅らせた。[#63](https://github.com/rx-twitter/rx-twitter/issues/63)の軽減。 ([75ab51f](https://github.com/rx-twitter/rx-twitter/commit/75ab51f6b1b084f57b4c17b9a139401c955b6760))
+
 ## [2.4.1](https://github.com/rx-twitter/rx-twitter/compare/v2.4.0...v2.4.1) (2026-07-04)
 
 
