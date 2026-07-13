@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.4.4](https://github.com/rx-twitter/rx-twitter/compare/v2.4.3...v2.4.4) (2026-07-13)
+
+
+### Bug Fixes
+
+* **discord:** Embed内のメンション装飾を修正 ([9f91a8e](https://github.com/rx-twitter/rx-twitter/commit/9f91a8e6c07da9de4e4124891c0b2d8d1211ac64))
+* **discord:** Embed内のメンション装飾を修正 ([528913e](https://github.com/rx-twitter/rx-twitter/commit/528913eacba284ffcf9c4aeff81229bc356a36df))
+* Embed内のメンション装飾を修正 ([64ee859](https://github.com/rx-twitter/rx-twitter/commit/64ee859928e16aeb0342a80734f899b29eacddfa))
+
 ## [2.4.3](https://github.com/rx-twitter/rx-twitter/compare/v2.4.2...v2.4.3) (2026-07-13)
 
 
