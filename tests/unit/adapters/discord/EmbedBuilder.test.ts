@@ -59,7 +59,7 @@ describe("DiscordEmbedBuilder", () => {
       const embedData = embed.toJSON();
 
       expect(embedData.description).toContain("QT:");
-      expect(embedData.description).toContain("[@quoted_user](https://x.com/quoted_user)");
+      expect(embedData.description).toContain("[@quoted\\_user](https://x.com/quoted_user)");
       expect(embedData.description).toContain("Original tweet");
       expect(embedData.description).toContain(MOCK_TWEET_WITH_QUOTE.quote?.url);
     });
@@ -113,8 +113,8 @@ describe("DiscordEmbedBuilder", () => {
       const embed = embeds[0];
       const embedData = embed.toJSON();
 
-      expect(embedData.description).toContain("[@user_name](https://x.com/user_name)");
-      expect(embedData.description).toContain("[@another_user](https://x.com/another_user)");
+      expect(embedData.description).toContain("[@user\\_name](https://x.com/user_name)");
+      expect(embedData.description).toContain("[@another\\_user](https://x.com/another_user)");
     });
 
     it("URL内の@は変換されない", () => {
@@ -135,8 +135,28 @@ describe("DiscordEmbedBuilder", () => {
       const embedData = embed.toJSON();
 
       expect(embedData.description).toContain("[@someone](https://x.com/someone)");
-      expect(embedData.description).toContain("[@quoted_user](https://x.com/quoted_user)");
+      expect(embedData.description).toContain("[@quoted\\_user](https://x.com/quoted_user)");
       expect(embedData.description).toContain("[@friend](https://x.com/friend)");
+    });
+
+    it("アンダースコアを含むメンションのリンク表示が装飾されない", () => {
+      const tweet = createMockTweet({
+        text: "Hello @_user_name_",
+        quote: createMockTweet({
+          author: {
+            id: "_quoted_user_",
+            name: "Quoted User",
+            url: "https://x.com/_quoted_user_",
+            iconUrl: "https://example.com/icon.jpg",
+          },
+        }),
+      });
+      const embeds = builder.build(tweet);
+
+      const description = embeds[0].toJSON().description;
+
+      expect(description).toContain("[@\\_user\\_name\\_](https://x.com/_user_name_)");
+      expect(description).toContain("[@\\_quoted\\_user\\_](https://x.com/_quoted_user_)");
     });
 
     it("4096文字を超える説明文は省略される", () => {
