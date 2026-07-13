@@ -57,7 +57,7 @@ export class DiscordEmbedBuilder {
     // 説明文の作成（引用ツイート情報を含む）
     let description = this.convertMentionsToLinks(tweet.text);
     if (tweet.quote) {
-      const quoteAuthorLink = `[@${tweet.quote.author.id}](https://x.com/${tweet.quote.author.id})`;
+      const quoteAuthorLink = this.createMentionLink(tweet.quote.author.id);
       const quoteTextWithLinks = this.convertMentionsToLinks(tweet.quote.text);
       const quoteText = this.quotePrefix + quoteAuthorLink + " " + quoteTextWithLinks;
       const quoteUrl = "(" + tweet.quote.url + ")";
@@ -100,13 +100,22 @@ export class DiscordEmbedBuilder {
     });
 
     // @メンションをマークダウンリンクに変換（連続する@の最後のみ変換、全角@にも対応）
-    const transformed = textWithPlaceholders.replace(
-      /([@＠]*)[@＠]([A-Za-z0-9_]{1,15})\b/g,
-      "$1[@$2](https://x.com/$2)"
-    );
+    const transformed = textWithPlaceholders.replace(/([@＠]*)[@＠]([A-Za-z0-9_]{1,15})\b/g, (_, prefix, username) => {
+      return prefix + this.createMentionLink(username);
+    });
 
     // プレースホルダーを元のURLに戻す
     return transformed.replace(/__URL_PLACEHOLDER_(\d+)__/g, (_, index) => urls[parseInt(index)]);
+  }
+
+  /**
+   * ユーザー名のMarkdown装飾を無効化したリンクを作成
+   * @param username Xのユーザー名
+   * @returns ユーザーページへのMarkdownリンク
+   */
+  private createMentionLink(username: string): string {
+    const escapedUsername = username.replaceAll("_", "\\_");
+    return `[@${escapedUsername}](https://x.com/${username})`;
   }
 
   /**
