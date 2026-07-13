@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.4.3](https://github.com/rx-twitter/rx-twitter/compare/v2.4.2...v2.4.3) (2026-07-13)
+
+
+### Bug Fixes
+
+* logの出力先を修正 ([b1666af](https://github.com/rx-twitter/rx-twitter/commit/b1666af5ee834ffe8af2af7cd9ccb6c5e988c7f9))
+* logの出力先を修正 ([3232d2a](https://github.com/rx-twitter/rx-twitter/commit/3232d2ad47bb68504fa3759af9a18a0e3c46a61c))
+
 ## [2.4.2](https://github.com/rx-twitter/rx-twitter/compare/v2.4.1...v2.4.2) (2026-07-07)
 
 
