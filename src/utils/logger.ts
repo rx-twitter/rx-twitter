@@ -33,8 +33,8 @@ const consoleColorFormat = winston.format.printf(({ timestamp, level, message, .
   return `${coloredTimestamp} [${coloredLevel}] ${message}${metaStr}`;
 });
 
-// ログディレクトリのパス
-const logDir = path.join(ROOT_DIR, "../logs");
+// Docker ではマウント先を環境変数で指定し、未指定時は既存の出力先を維持する
+const logDir = path.resolve(process.env.LOG_DIR ?? path.join(ROOT_DIR, "../logs"));
 
 // トランスポートの設定
 const transports: winston.transport[] = [
