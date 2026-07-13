@@ -23,7 +23,8 @@ COPY ["./.config", "./.config"]
 FROM node:24-alpine3.23@sha256:595398b0081eacda8e1c4c5b97b76cd1020e4d58a8ebcb4843b9bca1e79e7436 AS runner
 
 WORKDIR /app
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    LOG_DIR=/app/bot/logs
 
 # workspace の設定ファイルをコピー
 COPY ["package.json", "package-lock.json", "./"]
