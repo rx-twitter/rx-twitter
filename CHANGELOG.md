@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.4.5](https://github.com/rx-twitter/rx-twitter/compare/v2.4.4...v2.4.5) (2026-07-19)
+
+
+### Bug Fixes
+
+* **discord:** Embed内のメンションエスケープ表示を修正 ([fc3228b](https://github.com/rx-twitter/rx-twitter/commit/fc3228b4933e58c249d4831615e3b70cd2522f68))
+* **discord:** Embed内のメンションエスケープ表示を修正 ([5904ccb](https://github.com/rx-twitter/rx-twitter/commit/5904ccb91fcec2176afa45ffdb915eb3ea39a182))
+
 ## [2.4.4](https://github.com/rx-twitter/rx-twitter/compare/v2.4.3...v2.4.4) (2026-07-13)
 
 
