@@ -1,0 +1,5978 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "FxTwitter API",
+    "version": "2.0.0",
+    "description": "FxTwitter API v2"
+  },
+  "servers": [
+    {
+      "url": "https://api.fxtwitter.com",
+      "description": "FxTwitter API host"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "SocialThread": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "description": "HTTP-style status; mirrors response status code"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/APITwitterStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIBlueskyStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIMastodonStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIInstagramStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIThreadsStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIStatusTombstone"
+              },
+              {
+                "nullable": true
+              }
+            ],
+            "description": "Focal post, or a tombstone when the post is unavailable"
+          },
+          "thread": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/APITwitterStatus"
+                },
+                {
+                  "$ref": "#/components/schemas/APIBlueskyStatus"
+                },
+                {
+                  "$ref": "#/components/schemas/APIMastodonStatus"
+                },
+                {
+                  "$ref": "#/components/schemas/APIInstagramStatus"
+                },
+                {
+                  "$ref": "#/components/schemas/APIThreadsStatus"
+                },
+                {
+                  "$ref": "#/components/schemas/APIStatusTombstone"
+                }
+              ]
+            }
+          },
+          "author": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/APIUser"
+              },
+              {
+                "nullable": true
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "status",
+          "thread",
+          "author"
+        ]
+      },
+      "ApiQueryError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "number",
+            "enum": [
+              400
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "APITwitterStatus": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "status"
+            ],
+            "description": "Discriminator: single post/status (API v2)."
+          },
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "created_timestamp": {
+            "type": "number"
+          },
+          "likes": {
+            "type": "number"
+          },
+          "reposts": {
+            "type": "number"
+          },
+          "quotes": {
+            "type": "number"
+          },
+          "replies": {
+            "type": "number"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/APITwitterStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIStatusTombstone"
+              }
+            ]
+          },
+          "poll": {
+            "type": "object",
+            "properties": {
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "number"
+                    },
+                    "percentage": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "count",
+                    "percentage"
+                  ]
+                }
+              },
+              "total_votes": {
+                "type": "number"
+              },
+              "ends_at": {
+                "type": "string"
+              },
+              "time_left_en": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "choices",
+              "total_votes",
+              "ends_at",
+              "time_left_en"
+            ]
+          },
+          "author": {
+            "$ref": "#/components/schemas/APIUser"
+          },
+          "media": {
+            "type": "object",
+            "properties": {
+              "external": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "video"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "thumbnail_url": {
+                    "type": "string"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "width": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url"
+                ]
+              },
+              "photos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "photo",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "altText": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height"
+                  ]
+                }
+              },
+              "videos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "video",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "thumbnail_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "duration": {
+                      "type": "number"
+                    },
+                    "filesize": {
+                      "type": "number"
+                    },
+                    "formats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "container": {
+                            "type": "string",
+                            "enum": [
+                              "mp4",
+                              "webm",
+                              "m3u8"
+                            ]
+                          },
+                          "codec": {
+                            "type": "string",
+                            "enum": [
+                              "h264",
+                              "hevc",
+                              "vp9",
+                              "av1"
+                            ]
+                          },
+                          "bitrate": {
+                            "type": "number"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "size": {
+                            "type": "number"
+                          },
+                          "height": {
+                            "type": "number"
+                          },
+                          "width": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "publisher": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/APIUser"
+                        },
+                        {
+                          "nullable": true
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height",
+                    "duration",
+                    "formats"
+                  ]
+                }
+              },
+              "all": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "photo",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "altText": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "video",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "thumbnail_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "duration": {
+                          "type": "number"
+                        },
+                        "filesize": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "container": {
+                                "type": "string",
+                                "enum": [
+                                  "mp4",
+                                  "webm",
+                                  "m3u8"
+                                ]
+                              },
+                              "codec": {
+                                "type": "string",
+                                "enum": [
+                                  "h264",
+                                  "hevc",
+                                  "vp9",
+                                  "av1"
+                                ]
+                              },
+                              "bitrate": {
+                                "type": "number"
+                              },
+                              "url": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "number"
+                              },
+                              "height": {
+                                "type": "number"
+                              },
+                              "width": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "url"
+                            ]
+                          }
+                        },
+                        "publisher": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/APIUser"
+                            },
+                            {
+                              "nullable": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "duration",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "mosaic_photo"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "object",
+                          "properties": {
+                            "webp": {
+                              "type": "string"
+                            },
+                            "jpeg": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "webp",
+                            "jpeg"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "mosaic": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "mosaic_photo"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "formats": {
+                    "type": "object",
+                    "properties": {
+                      "webp": {
+                        "type": "string"
+                      },
+                      "jpeg": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "webp",
+                      "jpeg"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "url",
+                  "width",
+                  "height",
+                  "formats"
+                ]
+              },
+              "broadcast": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "LIVE",
+                      "ENDED"
+                    ]
+                  },
+                  "broadcaster": {
+                    "type": "object",
+                    "properties": {
+                      "username": {
+                        "type": "string"
+                      },
+                      "display_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "username",
+                      "display_name",
+                      "id"
+                    ]
+                  },
+                  "stream": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "url"
+                    ]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "orientation": {
+                    "type": "string",
+                    "enum": [
+                      "landscape",
+                      "portrait"
+                    ]
+                  },
+                  "broadcast_id": {
+                    "type": "string"
+                  },
+                  "media_id": {
+                    "type": "string"
+                  },
+                  "media_key": {
+                    "type": "string"
+                  },
+                  "is_high_latency": {
+                    "type": "boolean"
+                  },
+                  "thumbnail": {
+                    "type": "object",
+                    "properties": {
+                      "original": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "small": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "medium": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "x_large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "original"
+                    ]
+                  }
+                },
+                "required": [
+                  "url",
+                  "width",
+                  "height",
+                  "state",
+                  "broadcaster",
+                  "title",
+                  "source",
+                  "orientation",
+                  "broadcast_id",
+                  "media_id",
+                  "media_key",
+                  "is_high_latency",
+                  "thumbnail"
+                ]
+              }
+            }
+          },
+          "raw_text": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "display_text_range": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "facets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)"
+                    },
+                    "indices": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "description": "Start and end UTF-16 indices"
+                    },
+                    "original": {
+                      "type": "string"
+                    },
+                    "replacement": {
+                      "type": "string"
+                    },
+                    "display": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "indices"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "display_text_range",
+              "facets"
+            ]
+          },
+          "lang": {
+            "type": "string",
+            "nullable": true
+          },
+          "translation": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "source_lang": {
+                "type": "string"
+              },
+              "source_lang_en": {
+                "type": "string"
+              },
+              "target_lang": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text",
+              "source_lang",
+              "source_lang_en",
+              "target_lang",
+              "provider"
+            ]
+          },
+          "possibly_sensitive": {
+            "type": "boolean"
+          },
+          "replying_to": {
+            "$ref": "#/components/schemas/APIReplyingTo"
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "embed_card": {
+            "type": "string",
+            "enum": [
+              "tweet",
+              "summary",
+              "summary_large_image",
+              "player"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "twitter"
+            ]
+          },
+          "views": {
+            "type": "number",
+            "nullable": true
+          },
+          "bookmarks": {
+            "type": "number",
+            "nullable": true
+          },
+          "community": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "string"
+              },
+              "search_tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "is_nsfw": {
+                "type": "boolean"
+              },
+              "topic": {
+                "type": "string",
+                "nullable": true
+              },
+              "admin": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/APIUser"
+                  },
+                  {
+                    "nullable": true
+                  }
+                ]
+              },
+              "creator": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/APIUser"
+                  },
+                  {
+                    "nullable": true
+                  }
+                ]
+              },
+              "join_policy": {
+                "type": "string",
+                "enum": [
+                  "Open",
+                  "Closed"
+                ]
+              },
+              "invites_policy": {
+                "type": "string",
+                "enum": [
+                  "MemberInvitesAllowed",
+                  "MemberInvitesDisabled"
+                ]
+              },
+              "is_pinned": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "created_at",
+              "search_tags",
+              "is_nsfw",
+              "topic",
+              "join_policy",
+              "invites_policy",
+              "is_pinned"
+            ]
+          },
+          "article": {
+            "type": "object",
+            "properties": {
+              "created_at": {
+                "type": "string"
+              },
+              "modified_at": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "preview_text": {
+                "type": "string"
+              },
+              "cover_media": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "media_key": {
+                    "type": "string"
+                  },
+                  "media_id": {
+                    "type": "string"
+                  },
+                  "media_info": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "__typename": {
+                            "type": "string",
+                            "enum": [
+                              "ApiImage"
+                            ]
+                          },
+                          "original_img_height": {
+                            "type": "number"
+                          },
+                          "original_img_width": {
+                            "type": "number"
+                          },
+                          "original_img_url": {
+                            "type": "string"
+                          },
+                          "color_info": {
+                            "type": "object",
+                            "properties": {
+                              "palette": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "percentage": {
+                                      "type": "number"
+                                    },
+                                    "rgb": {
+                                      "type": "object",
+                                      "properties": {
+                                        "red": {
+                                          "type": "number"
+                                        },
+                                        "green": {
+                                          "type": "number"
+                                        },
+                                        "blue": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "red",
+                                        "green",
+                                        "blue"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "percentage",
+                                    "rgb"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "palette"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "__typename",
+                          "original_img_height",
+                          "original_img_width",
+                          "original_img_url",
+                          "color_info"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "__typename": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "ApiVideo"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "ApiGif"
+                                ]
+                              }
+                            ]
+                          },
+                          "type": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "video"
+                                ]
+                              },
+                              {
+                                "type": "string",
+                                "enum": [
+                                  "animated_gif"
+                                ]
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "id_str": {
+                            "type": "string"
+                          },
+                          "ext_alt_text": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "ext_media_color": {
+                            "type": "object",
+                            "properties": {
+                              "palette": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "percentage": {
+                                      "type": "number"
+                                    },
+                                    "rgb": {
+                                      "type": "object",
+                                      "properties": {
+                                        "red": {
+                                          "type": "number"
+                                        },
+                                        "green": {
+                                          "type": "number"
+                                        },
+                                        "blue": {
+                                          "type": "number"
+                                        }
+                                      },
+                                      "required": [
+                                        "red",
+                                        "green",
+                                        "blue"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "percentage",
+                                    "rgb"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "palette"
+                            ]
+                          },
+                          "media_url": {
+                            "type": "string"
+                          },
+                          "media_url_https": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "display_url": {
+                            "type": "string"
+                          },
+                          "expanded_url": {
+                            "type": "string"
+                          },
+                          "original_info": {
+                            "type": "object",
+                            "properties": {
+                              "height": {
+                                "type": "number"
+                              },
+                              "width": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "height",
+                              "width"
+                            ]
+                          },
+                          "sizes": {
+                            "type": "object",
+                            "properties": {
+                              "original": {
+                                "type": "object",
+                                "properties": {
+                                  "h": {
+                                    "type": "number"
+                                  },
+                                  "resize": {
+                                    "type": "string",
+                                    "enum": [
+                                      "fit"
+                                    ]
+                                  },
+                                  "w": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "h",
+                                  "resize",
+                                  "w"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "original"
+                            ]
+                          },
+                          "video_info": {
+                            "type": "object",
+                            "properties": {
+                              "aspect_ratio": {
+                                "type": "array",
+                                "items": {
+                                  "type": "number"
+                                },
+                                "minItems": 2,
+                                "maxItems": 2
+                              },
+                              "duration_millis": {
+                                "type": "number"
+                              },
+                              "variants": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "bitrate": {
+                                      "type": "number"
+                                    },
+                                    "content_type": {
+                                      "type": "string"
+                                    },
+                                    "url": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "bitrate",
+                                    "content_type",
+                                    "url"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "aspect_ratio",
+                              "duration_millis",
+                              "variants"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "__typename",
+                          "type",
+                          "id",
+                          "id_str",
+                          "ext_alt_text",
+                          "ext_media_color",
+                          "media_url",
+                          "media_url_https",
+                          "url",
+                          "display_url",
+                          "expanded_url",
+                          "original_info",
+                          "sizes",
+                          "video_info"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "media_key",
+                  "media_id",
+                  "media_info"
+                ]
+              },
+              "content": {
+                "type": "object",
+                "properties": {
+                  "blocks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "nullable": true
+                          }
+                        },
+                        "entityRanges": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "number"
+                              },
+                              "length": {
+                                "type": "number"
+                              },
+                              "offset": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "key",
+                              "length",
+                              "offset"
+                            ]
+                          }
+                        },
+                        "inlineStyleRanges": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "length": {
+                                "type": "number"
+                              },
+                              "offset": {
+                                "type": "number"
+                              },
+                              "style": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "length",
+                              "offset",
+                              "style"
+                            ]
+                          }
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "data",
+                        "entityRanges",
+                        "inlineStyleRanges",
+                        "text",
+                        "type"
+                      ]
+                    },
+                    "default": []
+                  },
+                  "entityMap": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "MARKDOWN"
+                                  ]
+                                },
+                                "mutability": {
+                                  "type": "string",
+                                  "enum": [
+                                    "Mutable"
+                                  ]
+                                },
+                                "data": {
+                                  "type": "object",
+                                  "properties": {
+                                    "entityKey": {
+                                      "type": "string"
+                                    },
+                                    "markdown": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "entityKey",
+                                    "markdown"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "mutability",
+                                "data"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "value"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "MEDIA"
+                                  ]
+                                },
+                                "mutability": {
+                                  "type": "string",
+                                  "enum": [
+                                    "Immutable"
+                                  ]
+                                },
+                                "data": {
+                                  "type": "object",
+                                  "properties": {
+                                    "entityKey": {
+                                      "type": "string"
+                                    },
+                                    "mediaItems": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "localMediaId": {
+                                            "type": "string"
+                                          },
+                                          "mediaCategory": {
+                                            "type": "string"
+                                          },
+                                          "mediaId": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "localMediaId",
+                                          "mediaCategory",
+                                          "mediaId"
+                                        ]
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "entityKey",
+                                    "mediaItems"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "mutability",
+                                "data"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "value"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "object",
+                              "properties": {
+                                "type": {
+                                  "type": "string",
+                                  "enum": [
+                                    "TWEET"
+                                  ]
+                                },
+                                "mutability": {
+                                  "type": "string",
+                                  "enum": [
+                                    "Immutable"
+                                  ]
+                                },
+                                "data": {
+                                  "type": "object",
+                                  "properties": {
+                                    "tweetId": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "tweetId"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "type",
+                                "mutability",
+                                "data"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "value"
+                          ]
+                        }
+                      ]
+                    },
+                    "default": []
+                  }
+                }
+              },
+              "media_entities": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "media_key": {
+                      "type": "string"
+                    },
+                    "media_id": {
+                      "type": "string"
+                    },
+                    "media_info": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "__typename": {
+                              "type": "string",
+                              "enum": [
+                                "ApiImage"
+                              ]
+                            },
+                            "original_img_height": {
+                              "type": "number"
+                            },
+                            "original_img_width": {
+                              "type": "number"
+                            },
+                            "original_img_url": {
+                              "type": "string"
+                            },
+                            "color_info": {
+                              "type": "object",
+                              "properties": {
+                                "palette": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "percentage": {
+                                        "type": "number"
+                                      },
+                                      "rgb": {
+                                        "type": "object",
+                                        "properties": {
+                                          "red": {
+                                            "type": "number"
+                                          },
+                                          "green": {
+                                            "type": "number"
+                                          },
+                                          "blue": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "red",
+                                          "green",
+                                          "blue"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "percentage",
+                                      "rgb"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "palette"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "__typename",
+                            "original_img_height",
+                            "original_img_width",
+                            "original_img_url",
+                            "color_info"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "__typename": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "ApiVideo"
+                                  ]
+                                },
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "ApiGif"
+                                  ]
+                                }
+                              ]
+                            },
+                            "type": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "video"
+                                  ]
+                                },
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "animated_gif"
+                                  ]
+                                }
+                              ]
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "id_str": {
+                              "type": "string"
+                            },
+                            "ext_alt_text": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "ext_media_color": {
+                              "type": "object",
+                              "properties": {
+                                "palette": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "percentage": {
+                                        "type": "number"
+                                      },
+                                      "rgb": {
+                                        "type": "object",
+                                        "properties": {
+                                          "red": {
+                                            "type": "number"
+                                          },
+                                          "green": {
+                                            "type": "number"
+                                          },
+                                          "blue": {
+                                            "type": "number"
+                                          }
+                                        },
+                                        "required": [
+                                          "red",
+                                          "green",
+                                          "blue"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "percentage",
+                                      "rgb"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "palette"
+                              ]
+                            },
+                            "media_url": {
+                              "type": "string"
+                            },
+                            "media_url_https": {
+                              "type": "string"
+                            },
+                            "url": {
+                              "type": "string"
+                            },
+                            "display_url": {
+                              "type": "string"
+                            },
+                            "expanded_url": {
+                              "type": "string"
+                            },
+                            "original_info": {
+                              "type": "object",
+                              "properties": {
+                                "height": {
+                                  "type": "number"
+                                },
+                                "width": {
+                                  "type": "number"
+                                }
+                              },
+                              "required": [
+                                "height",
+                                "width"
+                              ]
+                            },
+                            "sizes": {
+                              "type": "object",
+                              "properties": {
+                                "original": {
+                                  "type": "object",
+                                  "properties": {
+                                    "h": {
+                                      "type": "number"
+                                    },
+                                    "resize": {
+                                      "type": "string",
+                                      "enum": [
+                                        "fit"
+                                      ]
+                                    },
+                                    "w": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "h",
+                                    "resize",
+                                    "w"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "original"
+                              ]
+                            },
+                            "video_info": {
+                              "type": "object",
+                              "properties": {
+                                "aspect_ratio": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "number"
+                                  },
+                                  "minItems": 2,
+                                  "maxItems": 2
+                                },
+                                "duration_millis": {
+                                  "type": "number"
+                                },
+                                "variants": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "bitrate": {
+                                        "type": "number"
+                                      },
+                                      "content_type": {
+                                        "type": "string"
+                                      },
+                                      "url": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "bitrate",
+                                      "content_type",
+                                      "url"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "aspect_ratio",
+                                "duration_millis",
+                                "variants"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "__typename",
+                            "type",
+                            "id",
+                            "id_str",
+                            "ext_alt_text",
+                            "ext_media_color",
+                            "media_url",
+                            "media_url_https",
+                            "url",
+                            "display_url",
+                            "expanded_url",
+                            "original_info",
+                            "sizes",
+                            "video_info"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "media_key",
+                    "media_id",
+                    "media_info"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "created_at",
+              "id",
+              "title",
+              "preview_text",
+              "cover_media",
+              "content",
+              "media_entities"
+            ]
+          },
+          "is_note_tweet": {
+            "type": "boolean"
+          },
+          "community_note": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "facets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)"
+                    },
+                    "indices": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "description": "Start and end UTF-16 indices"
+                    },
+                    "original": {
+                      "type": "string"
+                    },
+                    "replacement": {
+                      "type": "string"
+                    },
+                    "display": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "indices"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "facets"
+            ]
+          },
+          "reposted_by": {
+            "$ref": "#/components/schemas/APIRepostedBy"
+          },
+          "card": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "card_name": {
+                "type": "string"
+              },
+              "image": {
+                "type": "object",
+                "properties": {
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "alt": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "required": [
+              "url"
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "url",
+          "text",
+          "created_at",
+          "created_timestamp",
+          "likes",
+          "reposts",
+          "quotes",
+          "replies",
+          "author",
+          "media",
+          "raw_text",
+          "lang",
+          "possibly_sensitive",
+          "replying_to",
+          "source",
+          "embed_card",
+          "provider",
+          "is_note_tweet",
+          "community_note",
+          "reposted_by"
+        ]
+      },
+      "APIBlueskyStatus": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "status"
+            ],
+            "description": "Discriminator: single status"
+          },
+          "id": {
+            "type": "string"
+          },
+          "cid": {
+            "type": "string"
+          },
+          "at_uri": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "created_timestamp": {
+            "type": "number"
+          },
+          "likes": {
+            "type": "number"
+          },
+          "reposts": {
+            "type": "number"
+          },
+          "quotes": {
+            "type": "number"
+          },
+          "replies": {
+            "type": "number"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/APIBlueskyStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIStatusTombstone"
+              }
+            ]
+          },
+          "poll": {
+            "type": "object",
+            "properties": {
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "number"
+                    },
+                    "percentage": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "count",
+                    "percentage"
+                  ]
+                }
+              },
+              "total_votes": {
+                "type": "number"
+              },
+              "ends_at": {
+                "type": "string"
+              },
+              "time_left_en": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "choices",
+              "total_votes",
+              "ends_at",
+              "time_left_en"
+            ]
+          },
+          "author": {
+            "$ref": "#/components/schemas/APIUser"
+          },
+          "media": {
+            "type": "object",
+            "properties": {
+              "external": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "video"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "thumbnail_url": {
+                    "type": "string"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "width": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url"
+                ]
+              },
+              "photos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "photo",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "altText": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height"
+                  ]
+                }
+              },
+              "videos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "video",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "thumbnail_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "duration": {
+                      "type": "number"
+                    },
+                    "filesize": {
+                      "type": "number"
+                    },
+                    "formats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "container": {
+                            "type": "string",
+                            "enum": [
+                              "mp4",
+                              "webm",
+                              "m3u8"
+                            ]
+                          },
+                          "codec": {
+                            "type": "string",
+                            "enum": [
+                              "h264",
+                              "hevc",
+                              "vp9",
+                              "av1"
+                            ]
+                          },
+                          "bitrate": {
+                            "type": "number"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "size": {
+                            "type": "number"
+                          },
+                          "height": {
+                            "type": "number"
+                          },
+                          "width": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "publisher": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/APIUser"
+                        },
+                        {
+                          "nullable": true
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height",
+                    "duration",
+                    "formats"
+                  ]
+                }
+              },
+              "all": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "photo",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "altText": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "video",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "thumbnail_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "duration": {
+                          "type": "number"
+                        },
+                        "filesize": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "container": {
+                                "type": "string",
+                                "enum": [
+                                  "mp4",
+                                  "webm",
+                                  "m3u8"
+                                ]
+                              },
+                              "codec": {
+                                "type": "string",
+                                "enum": [
+                                  "h264",
+                                  "hevc",
+                                  "vp9",
+                                  "av1"
+                                ]
+                              },
+                              "bitrate": {
+                                "type": "number"
+                              },
+                              "url": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "number"
+                              },
+                              "height": {
+                                "type": "number"
+                              },
+                              "width": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "url"
+                            ]
+                          }
+                        },
+                        "publisher": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/APIUser"
+                            },
+                            {
+                              "nullable": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "duration",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "mosaic_photo"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "object",
+                          "properties": {
+                            "webp": {
+                              "type": "string"
+                            },
+                            "jpeg": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "webp",
+                            "jpeg"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "mosaic": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "mosaic_photo"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "formats": {
+                    "type": "object",
+                    "properties": {
+                      "webp": {
+                        "type": "string"
+                      },
+                      "jpeg": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "webp",
+                      "jpeg"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "url",
+                  "width",
+                  "height",
+                  "formats"
+                ]
+              },
+              "broadcast": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "LIVE",
+                      "ENDED"
+                    ]
+                  },
+                  "broadcaster": {
+                    "type": "object",
+                    "properties": {
+                      "username": {
+                        "type": "string"
+                      },
+                      "display_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "username",
+                      "display_name",
+                      "id"
+                    ]
+                  },
+                  "stream": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "url"
+                    ]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "orientation": {
+                    "type": "string",
+                    "enum": [
+                      "landscape",
+                      "portrait"
+                    ]
+                  },
+                  "broadcast_id": {
+                    "type": "string"
+                  },
+                  "media_id": {
+                    "type": "string"
+                  },
+                  "media_key": {
+                    "type": "string"
+                  },
+                  "is_high_latency": {
+                    "type": "boolean"
+                  },
+                  "thumbnail": {
+                    "type": "object",
+                    "properties": {
+                      "original": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "small": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "medium": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "x_large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "original"
+                    ]
+                  }
+                },
+                "required": [
+                  "url",
+                  "width",
+                  "height",
+                  "state",
+                  "broadcaster",
+                  "title",
+                  "source",
+                  "orientation",
+                  "broadcast_id",
+                  "media_id",
+                  "media_key",
+                  "is_high_latency",
+                  "thumbnail"
+                ]
+              }
+            }
+          },
+          "raw_text": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "facets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)"
+                    },
+                    "indices": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "description": "Start and end UTF-16 indices"
+                    },
+                    "original": {
+                      "type": "string"
+                    },
+                    "replacement": {
+                      "type": "string"
+                    },
+                    "display": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "indices"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "facets"
+            ]
+          },
+          "lang": {
+            "type": "string",
+            "nullable": true
+          },
+          "translation": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "source_lang": {
+                "type": "string"
+              },
+              "source_lang_en": {
+                "type": "string"
+              },
+              "target_lang": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text",
+              "source_lang",
+              "source_lang_en",
+              "target_lang",
+              "provider"
+            ]
+          },
+          "possibly_sensitive": {
+            "type": "boolean"
+          },
+          "replying_to": {
+            "$ref": "#/components/schemas/APIReplyingTo"
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "embed_card": {
+            "type": "string",
+            "enum": [
+              "tweet",
+              "summary",
+              "summary_large_image",
+              "player"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "bluesky"
+            ]
+          },
+          "reposted_by": {
+            "$ref": "#/components/schemas/APIRepostedBy"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "url",
+          "text",
+          "created_at",
+          "created_timestamp",
+          "likes",
+          "reposts",
+          "replies",
+          "author",
+          "media",
+          "raw_text",
+          "lang",
+          "possibly_sensitive",
+          "replying_to",
+          "source",
+          "embed_card",
+          "provider"
+        ]
+      },
+      "APIMastodonStatus": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "status"
+            ],
+            "description": "Discriminator: single post/status (API v2)."
+          },
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "created_timestamp": {
+            "type": "number"
+          },
+          "likes": {
+            "type": "number"
+          },
+          "reposts": {
+            "type": "number"
+          },
+          "quotes": {
+            "type": "number"
+          },
+          "replies": {
+            "type": "number"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/APIMastodonStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIStatusTombstone"
+              }
+            ]
+          },
+          "poll": {
+            "type": "object",
+            "properties": {
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "number"
+                    },
+                    "percentage": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "count",
+                    "percentage"
+                  ]
+                }
+              },
+              "total_votes": {
+                "type": "number"
+              },
+              "ends_at": {
+                "type": "string"
+              },
+              "time_left_en": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "choices",
+              "total_votes",
+              "ends_at",
+              "time_left_en"
+            ]
+          },
+          "author": {
+            "$ref": "#/components/schemas/APIUser"
+          },
+          "media": {
+            "type": "object",
+            "properties": {
+              "external": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "video"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "thumbnail_url": {
+                    "type": "string"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "width": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url"
+                ]
+              },
+              "photos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "photo",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "altText": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height"
+                  ]
+                }
+              },
+              "videos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "video",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "thumbnail_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "duration": {
+                      "type": "number"
+                    },
+                    "filesize": {
+                      "type": "number"
+                    },
+                    "formats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "container": {
+                            "type": "string",
+                            "enum": [
+                              "mp4",
+                              "webm",
+                              "m3u8"
+                            ]
+                          },
+                          "codec": {
+                            "type": "string",
+                            "enum": [
+                              "h264",
+                              "hevc",
+                              "vp9",
+                              "av1"
+                            ]
+                          },
+                          "bitrate": {
+                            "type": "number"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "size": {
+                            "type": "number"
+                          },
+                          "height": {
+                            "type": "number"
+                          },
+                          "width": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "publisher": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/APIUser"
+                        },
+                        {
+                          "nullable": true
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height",
+                    "duration",
+                    "formats"
+                  ]
+                }
+              },
+              "all": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "photo",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "altText": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "video",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "thumbnail_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "duration": {
+                          "type": "number"
+                        },
+                        "filesize": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "container": {
+                                "type": "string",
+                                "enum": [
+                                  "mp4",
+                                  "webm",
+                                  "m3u8"
+                                ]
+                              },
+                              "codec": {
+                                "type": "string",
+                                "enum": [
+                                  "h264",
+                                  "hevc",
+                                  "vp9",
+                                  "av1"
+                                ]
+                              },
+                              "bitrate": {
+                                "type": "number"
+                              },
+                              "url": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "number"
+                              },
+                              "height": {
+                                "type": "number"
+                              },
+                              "width": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "url"
+                            ]
+                          }
+                        },
+                        "publisher": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/APIUser"
+                            },
+                            {
+                              "nullable": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "duration",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "mosaic_photo"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "object",
+                          "properties": {
+                            "webp": {
+                              "type": "string"
+                            },
+                            "jpeg": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "webp",
+                            "jpeg"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "mosaic": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "mosaic_photo"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "formats": {
+                    "type": "object",
+                    "properties": {
+                      "webp": {
+                        "type": "string"
+                      },
+                      "jpeg": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "webp",
+                      "jpeg"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "url",
+                  "width",
+                  "height",
+                  "formats"
+                ]
+              },
+              "broadcast": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "LIVE",
+                      "ENDED"
+                    ]
+                  },
+                  "broadcaster": {
+                    "type": "object",
+                    "properties": {
+                      "username": {
+                        "type": "string"
+                      },
+                      "display_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "username",
+                      "display_name",
+                      "id"
+                    ]
+                  },
+                  "stream": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "url"
+                    ]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "orientation": {
+                    "type": "string",
+                    "enum": [
+                      "landscape",
+                      "portrait"
+                    ]
+                  },
+                  "broadcast_id": {
+                    "type": "string"
+                  },
+                  "media_id": {
+                    "type": "string"
+                  },
+                  "media_key": {
+                    "type": "string"
+                  },
+                  "is_high_latency": {
+                    "type": "boolean"
+                  },
+                  "thumbnail": {
+                    "type": "object",
+                    "properties": {
+                      "original": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "small": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "medium": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "x_large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "original"
+                    ]
+                  }
+                },
+                "required": [
+                  "url",
+                  "width",
+                  "height",
+                  "state",
+                  "broadcaster",
+                  "title",
+                  "source",
+                  "orientation",
+                  "broadcast_id",
+                  "media_id",
+                  "media_key",
+                  "is_high_latency",
+                  "thumbnail"
+                ]
+              }
+            }
+          },
+          "raw_text": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "facets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)"
+                    },
+                    "indices": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "description": "Start and end UTF-16 indices"
+                    },
+                    "original": {
+                      "type": "string"
+                    },
+                    "replacement": {
+                      "type": "string"
+                    },
+                    "display": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "indices"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "facets"
+            ]
+          },
+          "lang": {
+            "type": "string",
+            "nullable": true
+          },
+          "translation": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "source_lang": {
+                "type": "string"
+              },
+              "source_lang_en": {
+                "type": "string"
+              },
+              "target_lang": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text",
+              "source_lang",
+              "source_lang_en",
+              "target_lang",
+              "provider"
+            ]
+          },
+          "possibly_sensitive": {
+            "type": "boolean"
+          },
+          "replying_to": {
+            "$ref": "#/components/schemas/APIReplyingTo"
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "embed_card": {
+            "type": "string",
+            "enum": [
+              "tweet",
+              "summary",
+              "summary_large_image",
+              "player"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "mastodon"
+            ]
+          },
+          "reposted_by": {
+            "$ref": "#/components/schemas/APIRepostedBy"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "url",
+          "text",
+          "created_at",
+          "created_timestamp",
+          "likes",
+          "reposts",
+          "replies",
+          "author",
+          "media",
+          "raw_text",
+          "lang",
+          "possibly_sensitive",
+          "replying_to",
+          "source",
+          "embed_card",
+          "provider"
+        ]
+      },
+      "APIInstagramStatus": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "status"
+            ],
+            "description": "Discriminator: single Instagram post."
+          },
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "created_timestamp": {
+            "type": "number"
+          },
+          "likes": {
+            "type": "number"
+          },
+          "reposts": {
+            "type": "number"
+          },
+          "quotes": {
+            "type": "number"
+          },
+          "replies": {
+            "type": "number"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/APIInstagramStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIStatusTombstone"
+              }
+            ]
+          },
+          "poll": {
+            "type": "object",
+            "properties": {
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "number"
+                    },
+                    "percentage": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "count",
+                    "percentage"
+                  ]
+                }
+              },
+              "total_votes": {
+                "type": "number"
+              },
+              "ends_at": {
+                "type": "string"
+              },
+              "time_left_en": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "choices",
+              "total_votes",
+              "ends_at",
+              "time_left_en"
+            ]
+          },
+          "author": {
+            "$ref": "#/components/schemas/APIUser"
+          },
+          "media": {
+            "type": "object",
+            "properties": {
+              "external": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "video"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "thumbnail_url": {
+                    "type": "string"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "width": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url"
+                ]
+              },
+              "photos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "photo",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "altText": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height"
+                  ]
+                }
+              },
+              "videos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "video",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "thumbnail_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "duration": {
+                      "type": "number"
+                    },
+                    "filesize": {
+                      "type": "number"
+                    },
+                    "formats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "container": {
+                            "type": "string",
+                            "enum": [
+                              "mp4",
+                              "webm",
+                              "m3u8"
+                            ]
+                          },
+                          "codec": {
+                            "type": "string",
+                            "enum": [
+                              "h264",
+                              "hevc",
+                              "vp9",
+                              "av1"
+                            ]
+                          },
+                          "bitrate": {
+                            "type": "number"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "size": {
+                            "type": "number"
+                          },
+                          "height": {
+                            "type": "number"
+                          },
+                          "width": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "publisher": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/APIUser"
+                        },
+                        {
+                          "nullable": true
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height",
+                    "duration",
+                    "formats"
+                  ]
+                }
+              },
+              "all": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "photo",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "altText": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "video",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "thumbnail_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "duration": {
+                          "type": "number"
+                        },
+                        "filesize": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "container": {
+                                "type": "string",
+                                "enum": [
+                                  "mp4",
+                                  "webm",
+                                  "m3u8"
+                                ]
+                              },
+                              "codec": {
+                                "type": "string",
+                                "enum": [
+                                  "h264",
+                                  "hevc",
+                                  "vp9",
+                                  "av1"
+                                ]
+                              },
+                              "bitrate": {
+                                "type": "number"
+                              },
+                              "url": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "number"
+                              },
+                              "height": {
+                                "type": "number"
+                              },
+                              "width": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "url"
+                            ]
+                          }
+                        },
+                        "publisher": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/APIUser"
+                            },
+                            {
+                              "nullable": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "duration",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "mosaic_photo"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "object",
+                          "properties": {
+                            "webp": {
+                              "type": "string"
+                            },
+                            "jpeg": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "webp",
+                            "jpeg"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "mosaic": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "mosaic_photo"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "formats": {
+                    "type": "object",
+                    "properties": {
+                      "webp": {
+                        "type": "string"
+                      },
+                      "jpeg": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "webp",
+                      "jpeg"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "url",
+                  "width",
+                  "height",
+                  "formats"
+                ]
+              },
+              "broadcast": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "LIVE",
+                      "ENDED"
+                    ]
+                  },
+                  "broadcaster": {
+                    "type": "object",
+                    "properties": {
+                      "username": {
+                        "type": "string"
+                      },
+                      "display_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "username",
+                      "display_name",
+                      "id"
+                    ]
+                  },
+                  "stream": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "url"
+                    ]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "orientation": {
+                    "type": "string",
+                    "enum": [
+                      "landscape",
+                      "portrait"
+                    ]
+                  },
+                  "broadcast_id": {
+                    "type": "string"
+                  },
+                  "media_id": {
+                    "type": "string"
+                  },
+                  "media_key": {
+                    "type": "string"
+                  },
+                  "is_high_latency": {
+                    "type": "boolean"
+                  },
+                  "thumbnail": {
+                    "type": "object",
+                    "properties": {
+                      "original": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "small": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "medium": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "x_large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "original"
+                    ]
+                  }
+                },
+                "required": [
+                  "url",
+                  "width",
+                  "height",
+                  "state",
+                  "broadcaster",
+                  "title",
+                  "source",
+                  "orientation",
+                  "broadcast_id",
+                  "media_id",
+                  "media_key",
+                  "is_high_latency",
+                  "thumbnail"
+                ]
+              }
+            }
+          },
+          "raw_text": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "facets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)"
+                    },
+                    "indices": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "description": "Start and end UTF-16 indices"
+                    },
+                    "original": {
+                      "type": "string"
+                    },
+                    "replacement": {
+                      "type": "string"
+                    },
+                    "display": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "indices"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "facets"
+            ]
+          },
+          "lang": {
+            "type": "string",
+            "nullable": true
+          },
+          "translation": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "source_lang": {
+                "type": "string"
+              },
+              "source_lang_en": {
+                "type": "string"
+              },
+              "target_lang": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text",
+              "source_lang",
+              "source_lang_en",
+              "target_lang",
+              "provider"
+            ]
+          },
+          "possibly_sensitive": {
+            "type": "boolean"
+          },
+          "replying_to": {
+            "$ref": "#/components/schemas/APIReplyingTo"
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "embed_card": {
+            "type": "string",
+            "enum": [
+              "tweet",
+              "summary",
+              "summary_large_image",
+              "player"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "instagram"
+            ]
+          },
+          "reposted_by": {
+            "$ref": "#/components/schemas/APIRepostedBy"
+          },
+          "media_pk": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "url",
+          "text",
+          "created_at",
+          "created_timestamp",
+          "likes",
+          "reposts",
+          "replies",
+          "author",
+          "media",
+          "raw_text",
+          "lang",
+          "possibly_sensitive",
+          "replying_to",
+          "source",
+          "embed_card",
+          "provider"
+        ]
+      },
+      "APIThreadsStatus": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "status"
+            ],
+            "description": "Discriminator: single Threads post."
+          },
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "created_timestamp": {
+            "type": "number"
+          },
+          "likes": {
+            "type": "number"
+          },
+          "reposts": {
+            "type": "number"
+          },
+          "quotes": {
+            "type": "number"
+          },
+          "replies": {
+            "type": "number"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/APIThreadsStatus"
+              },
+              {
+                "$ref": "#/components/schemas/APIStatusTombstone"
+              }
+            ]
+          },
+          "poll": {
+            "type": "object",
+            "properties": {
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "number"
+                    },
+                    "percentage": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "count",
+                    "percentage"
+                  ]
+                }
+              },
+              "total_votes": {
+                "type": "number"
+              },
+              "ends_at": {
+                "type": "string"
+              },
+              "time_left_en": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "choices",
+              "total_votes",
+              "ends_at",
+              "time_left_en"
+            ]
+          },
+          "author": {
+            "$ref": "#/components/schemas/APIUser"
+          },
+          "media": {
+            "type": "object",
+            "properties": {
+              "external": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "video"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "thumbnail_url": {
+                    "type": "string"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "width": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "type",
+                  "url"
+                ]
+              },
+              "photos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "photo",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "altText": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height"
+                  ]
+                }
+              },
+              "videos": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "video",
+                        "gif"
+                      ]
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "width": {
+                      "type": "number"
+                    },
+                    "height": {
+                      "type": "number"
+                    },
+                    "thumbnail_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "transcode_url": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "duration": {
+                      "type": "number"
+                    },
+                    "filesize": {
+                      "type": "number"
+                    },
+                    "formats": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "container": {
+                            "type": "string",
+                            "enum": [
+                              "mp4",
+                              "webm",
+                              "m3u8"
+                            ]
+                          },
+                          "codec": {
+                            "type": "string",
+                            "enum": [
+                              "h264",
+                              "hevc",
+                              "vp9",
+                              "av1"
+                            ]
+                          },
+                          "bitrate": {
+                            "type": "number"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "size": {
+                            "type": "number"
+                          },
+                          "height": {
+                            "type": "number"
+                          },
+                          "width": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "publisher": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/APIUser"
+                        },
+                        {
+                          "nullable": true
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "url",
+                    "width",
+                    "height",
+                    "duration",
+                    "formats"
+                  ]
+                }
+              },
+              "all": {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "photo",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "altText": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "video",
+                            "gif"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "thumbnail_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "transcode_url": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "duration": {
+                          "type": "number"
+                        },
+                        "filesize": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "container": {
+                                "type": "string",
+                                "enum": [
+                                  "mp4",
+                                  "webm",
+                                  "m3u8"
+                                ]
+                              },
+                              "codec": {
+                                "type": "string",
+                                "enum": [
+                                  "h264",
+                                  "hevc",
+                                  "vp9",
+                                  "av1"
+                                ]
+                              },
+                              "bitrate": {
+                                "type": "number"
+                              },
+                              "url": {
+                                "type": "string"
+                              },
+                              "size": {
+                                "type": "number"
+                              },
+                              "height": {
+                                "type": "number"
+                              },
+                              "width": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "url"
+                            ]
+                          }
+                        },
+                        "publisher": {
+                          "allOf": [
+                            {
+                              "$ref": "#/components/schemas/APIUser"
+                            },
+                            {
+                              "nullable": true
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "duration",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "mosaic_photo"
+                          ]
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        },
+                        "formats": {
+                          "type": "object",
+                          "properties": {
+                            "webp": {
+                              "type": "string"
+                            },
+                            "jpeg": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "webp",
+                            "jpeg"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height",
+                        "formats"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "format": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string"
+                        },
+                        "url": {
+                          "type": "string"
+                        },
+                        "width": {
+                          "type": "number"
+                        },
+                        "height": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "url",
+                        "width",
+                        "height"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "mosaic": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "format": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "mosaic_photo"
+                    ]
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "formats": {
+                    "type": "object",
+                    "properties": {
+                      "webp": {
+                        "type": "string"
+                      },
+                      "jpeg": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "webp",
+                      "jpeg"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "url",
+                  "width",
+                  "height",
+                  "formats"
+                ]
+              },
+              "broadcast": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "width": {
+                    "type": "number"
+                  },
+                  "height": {
+                    "type": "number"
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "LIVE",
+                      "ENDED"
+                    ]
+                  },
+                  "broadcaster": {
+                    "type": "object",
+                    "properties": {
+                      "username": {
+                        "type": "string"
+                      },
+                      "display_name": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "username",
+                      "display_name",
+                      "id"
+                    ]
+                  },
+                  "stream": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "url"
+                    ]
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "orientation": {
+                    "type": "string",
+                    "enum": [
+                      "landscape",
+                      "portrait"
+                    ]
+                  },
+                  "broadcast_id": {
+                    "type": "string"
+                  },
+                  "media_id": {
+                    "type": "string"
+                  },
+                  "media_key": {
+                    "type": "string"
+                  },
+                  "is_high_latency": {
+                    "type": "boolean"
+                  },
+                  "thumbnail": {
+                    "type": "object",
+                    "properties": {
+                      "original": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "small": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "medium": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      },
+                      "x_large": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "url"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "original"
+                    ]
+                  }
+                },
+                "required": [
+                  "url",
+                  "width",
+                  "height",
+                  "state",
+                  "broadcaster",
+                  "title",
+                  "source",
+                  "orientation",
+                  "broadcast_id",
+                  "media_id",
+                  "media_key",
+                  "is_high_latency",
+                  "thumbnail"
+                ]
+              }
+            }
+          },
+          "raw_text": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "facets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)"
+                    },
+                    "indices": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "description": "Start and end UTF-16 indices"
+                    },
+                    "original": {
+                      "type": "string"
+                    },
+                    "replacement": {
+                      "type": "string"
+                    },
+                    "display": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "indices"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "facets"
+            ]
+          },
+          "lang": {
+            "type": "string",
+            "nullable": true
+          },
+          "translation": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "source_lang": {
+                "type": "string"
+              },
+              "source_lang_en": {
+                "type": "string"
+              },
+              "target_lang": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text",
+              "source_lang",
+              "source_lang_en",
+              "target_lang",
+              "provider"
+            ]
+          },
+          "possibly_sensitive": {
+            "type": "boolean"
+          },
+          "replying_to": {
+            "$ref": "#/components/schemas/APIReplyingTo"
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "embed_card": {
+            "type": "string",
+            "enum": [
+              "tweet",
+              "summary",
+              "summary_large_image",
+              "player"
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "threads"
+            ]
+          },
+          "reposted_by": {
+            "$ref": "#/components/schemas/APIRepostedBy"
+          },
+          "media_pk": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "url",
+          "text",
+          "created_at",
+          "created_timestamp",
+          "likes",
+          "reposts",
+          "replies",
+          "author",
+          "media",
+          "raw_text",
+          "lang",
+          "possibly_sensitive",
+          "replying_to",
+          "source",
+          "embed_card",
+          "provider"
+        ]
+      },
+      "APIStatusTombstone": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "tombstone"
+            ],
+            "description": "Placeholder for an unavailable post (quote/thread)."
+          },
+          "provider": {
+            "type": "string",
+            "enum": [
+              "twitter",
+              "bluesky",
+              "mastodon",
+              "tiktok",
+              "instagram",
+              "threads"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "deleted",
+              "suspended",
+              "private",
+              "blocked",
+              "unavailable"
+            ],
+            "description": "Why the post is unavailable"
+          },
+          "message": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "profile"
+                ],
+                "description": "Discriminator: full user profile (API v2)."
+              },
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "screen_name": {
+                "type": "string"
+              },
+              "avatar_url": {
+                "type": "string",
+                "nullable": true
+              },
+              "banner_url": {
+                "type": "string",
+                "nullable": true
+              },
+              "description": {
+                "type": "string"
+              },
+              "raw_description": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "facets": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)"
+                        },
+                        "indices": {
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          },
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "description": "Start and end UTF-16 indices"
+                        },
+                        "original": {
+                          "type": "string"
+                        },
+                        "replacement": {
+                          "type": "string"
+                        },
+                        "display": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "indices"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "text",
+                  "facets"
+                ]
+              },
+              "location": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "protected": {
+                "type": "boolean"
+              },
+              "followers": {
+                "type": "number"
+              },
+              "following": {
+                "type": "number"
+              },
+              "statuses": {
+                "type": "number"
+              },
+              "media_count": {
+                "type": "number"
+              },
+              "likes": {
+                "type": "number"
+              },
+              "joined": {
+                "type": "string"
+              },
+              "website": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "url": {
+                    "type": "string"
+                  },
+                  "display_url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "url",
+                  "display_url"
+                ]
+              },
+              "birthday": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "day": {
+                    "type": "number"
+                  },
+                  "month": {
+                    "type": "number"
+                  },
+                  "year": {
+                    "type": "number"
+                  }
+                }
+              },
+              "verification": {
+                "type": "object",
+                "properties": {
+                  "verified": {
+                    "type": "boolean"
+                  },
+                  "type": {
+                    "type": "string",
+                    "nullable": true,
+                    "enum": [
+                      "organization",
+                      "government",
+                      "individual",
+                      null
+                    ]
+                  },
+                  "verified_at": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "identity_verified": {
+                    "type": "boolean"
+                  },
+                  "verified_by": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "verified",
+                  "type"
+                ]
+              },
+              "about_account": {
+                "$ref": "#/components/schemas/APIAboutAccount"
+              },
+              "profile_embed": {
+                "type": "boolean"
+              }
+            }
+          },
+          "at_uri": {
+            "type": "string"
+          },
+          "cid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "provider",
+          "reason",
+          "message"
+        ]
+      },
+      "APIUser": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "profile"
+            ],
+            "description": "Discriminator: full user profile (API v2)."
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "screen_name": {
+            "type": "string"
+          },
+          "avatar_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "banner_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string"
+          },
+          "raw_description": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "facets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "description": "Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)"
+                    },
+                    "indices": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      },
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "description": "Start and end UTF-16 indices"
+                    },
+                    "original": {
+                      "type": "string"
+                    },
+                    "replacement": {
+                      "type": "string"
+                    },
+                    "display": {
+                      "type": "string"
+                    },
+                    "id": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "indices"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "text",
+              "facets"
+            ]
+          },
+          "location": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "protected": {
+            "type": "boolean"
+          },
+          "followers": {
+            "type": "number"
+          },
+          "following": {
+            "type": "number"
+          },
+          "statuses": {
+            "type": "number"
+          },
+          "media_count": {
+            "type": "number"
+          },
+          "likes": {
+            "type": "number"
+          },
+          "joined": {
+            "type": "string"
+          },
+          "website": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "display_url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "url",
+              "display_url"
+            ]
+          },
+          "birthday": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "day": {
+                "type": "number"
+              },
+              "month": {
+                "type": "number"
+              },
+              "year": {
+                "type": "number"
+              }
+            }
+          },
+          "verification": {
+            "type": "object",
+            "properties": {
+              "verified": {
+                "type": "boolean"
+              },
+              "type": {
+                "type": "string",
+                "nullable": true,
+                "enum": [
+                  "organization",
+                  "government",
+                  "individual",
+                  null
+                ]
+              },
+              "verified_at": {
+                "type": "string",
+                "nullable": true
+              },
+              "identity_verified": {
+                "type": "boolean"
+              },
+              "verified_by": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "verified",
+              "type"
+            ]
+          },
+          "about_account": {
+            "$ref": "#/components/schemas/APIAboutAccount"
+          },
+          "profile_embed": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "name",
+          "screen_name",
+          "avatar_url",
+          "banner_url",
+          "description",
+          "raw_description",
+          "location",
+          "url",
+          "protected",
+          "followers",
+          "following",
+          "statuses",
+          "media_count",
+          "likes",
+          "joined",
+          "website"
+        ]
+      },
+      "APIReplyingTo": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "screen_name": {
+            "type": "string",
+            "description": "Handle or account id used in permalinks (@user on X)."
+          },
+          "status": {
+            "type": "string",
+            "description": "Parent post id (X: snowflake; Bluesky: record key)."
+          },
+          "url": {
+            "type": "string",
+            "description": "Permalink to the parent post when known."
+          },
+          "profile_url": {
+            "type": "string",
+            "description": "Permalink to the parent author profile when known."
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Display name of the parent author when known."
+          }
+        },
+        "required": [
+          "screen_name",
+          "status"
+        ]
+      },
+      "APIRepostedBy": {
+        "type": "object",
+        "nullable": true,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "screen_name": {
+            "type": "string"
+          },
+          "avatar_url": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "screen_name"
+        ]
+      },
+      "APIAboutAccount": {
+        "type": "object",
+        "properties": {
+          "based_in": {
+            "type": "string",
+            "nullable": true
+          },
+          "location_accurate": {
+            "type": "boolean"
+          },
+          "created_country_accurate": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "username_changes": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "number"
+              },
+              "last_changed_at": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "required": [
+              "count",
+              "last_changed_at"
+            ]
+          }
+        }
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/2/status/{id}": {
+      "get": {
+        "summary": "Get post",
+        "description": "Returns one X/Twitter post by snowflake ID. Optional `about_account` / `aboutAccount` adds account metadata when present.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{2,20}$",
+              "example": "20"
+            },
+            "required": true,
+            "description": "Tweet/post snowflake ID (numeric string)",
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "example": "1"
+            },
+            "required": false,
+            "description": "If truthy, include `about_account` on author when available",
+            "name": "about_account",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Alias for about_account",
+            "name": "aboutAccount",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "example": "es"
+            },
+            "required": false,
+            "description": "Target language (ISO 639-1 or 639-5, e.g. `en`, `es`, `zh-cn`) for inline X translations when available; falls back to translation API if missing",
+            "name": "lang",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post payload (check `code` for upstream errors mirrored as HTTP status)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialThread"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid path or query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiQueryError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Private or unavailable post",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialThread"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialThread"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server or upstream failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SocialThread"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,215 @@
+openapi: 3.0.0
+info:
+  title: VxTwitter (BetterTwitFix) API
+  version: 1.0.0
+  description: >
+    VxTwitter / BetterTwitFix のレスポンススキーマ。
+    ベースコード: dylanpdx/BetterTwitFix。
+    参考: docs/vxtwitter_api.md
+servers:
+  - url: https://api.vxtwitter.com
+    description: VxTwitter API host
+
+paths:
+  /{screen_name}/status/{tweet_id}:
+    get:
+      summary: Get post information
+      operationId: getPostInformation
+      parameters:
+        - name: screen_name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "ユーザーのスクリーンネーム (例: Twitter)"
+        - name: tweet_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ツイートの数値ID
+        - name: include_txt
+          in: query
+          required: false
+          schema:
+            type: string
+          description: '"true" で .txt メディアURLを追加'
+        - name: include_rtf
+          in: query
+          required: false
+          schema:
+            type: string
+          description: '"true" で .rtf メディアURLを追加'
+      responses:
+        "200":
+          description: ツイート情報
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VxTwitterStatus"
+        "404":
+          description: ツイートが存在しない
+        "500":
+          description: サーバーエラー
+
+components:
+  schemas:
+    VxTwitterStatus:
+      type: object
+      properties:
+        date:
+          type: string
+          description: ツイート投稿日時 (RFC 2822形式)
+        date_epoch:
+          type: number
+          description: ツイート投稿日時 (Unix Epoch)
+        hashtags:
+          type: array
+          items:
+            type: string
+        likes:
+          type: number
+        mediaURLs:
+          type: array
+          items:
+            type: string
+          description: メディアのURL一覧 (常に配列、空の場合もあり)
+        media_extended:
+          type: array
+          items:
+            $ref: "#/components/schemas/MediaExtended"
+          description: メディアの詳細情報。レスポンスには常に配列で存在する（空の場合も）。
+        replies:
+          type: number
+        retweets:
+          type: number
+        text:
+          type: string
+        tweetID:
+          type: string
+        tweetURL:
+          type: string
+        user_name:
+          type: string
+        user_screen_name:
+          type: string
+        user_profile_image_url:
+          type: string
+        conversationID:
+          type: string
+        possibly_sensitive:
+          type: boolean
+        qrtURL:
+          type: string
+          nullable: true
+          description: 引用ツイートのURL (引用がない場合は null)
+        qrt:
+          nullable: true
+          $ref: "#/components/schemas/VxTwitterStatus"
+          description: 引用ツイート (引用がない場合は null)
+        communityNote:
+          type: string
+          nullable: true
+        allSameType:
+          type: boolean
+        hasMedia:
+          type: boolean
+        combinedMediaUrl:
+          type: string
+          nullable: true
+        pollData:
+          nullable: true
+          $ref: "#/components/schemas/PollData"
+        article:
+          nullable: true
+          $ref: "#/components/schemas/Article"
+        lang:
+          type: string
+          nullable: true
+        replyingTo:
+          type: string
+          nullable: true
+        replyingToID:
+          type: string
+          nullable: true
+        fetched_on:
+          type: number
+        retweetURL:
+          type: string
+          nullable: true
+        translation:
+          nullable: true
+          $ref: "#/components/schemas/Translation"
+
+    MediaExtended:
+      type: object
+      properties:
+        altText:
+          type: string
+          nullable: true
+        size:
+          $ref: "#/components/schemas/MediaSize"
+        thumbnail_url:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum:
+            - image
+            - video
+            - gif
+        url:
+          type: string
+        duration_millis:
+          type: number
+          nullable: true
+        id_str:
+          type: string
+          nullable: true
+
+    MediaSize:
+      type: object
+      properties:
+        height:
+          type: number
+        width:
+          type: number
+
+    PollData:
+      type: object
+      properties:
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/PollOption"
+
+    PollOption:
+      type: object
+      properties:
+        name:
+          type: string
+        votes:
+          type: number
+        percent:
+          type: number
+
+    Article:
+      type: object
+      properties:
+        title:
+          type: string
+        preview_text:
+          type: string
+        image:
+          type: string
+          nullable: true
+
+    Translation:
+      type: object
+      properties:
+        source_language:
+          type: string
+        destination_language:
+          type: string
+        text:
+          type: string
