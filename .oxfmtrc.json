@@ -12,6 +12,7 @@
     "node_modules/**",
     "dashboard/**",
     "packages/**",
-    "tests/**"
+    "tests/**",
+    "src/**/generated/**"
   ]
 }
