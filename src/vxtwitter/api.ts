@@ -1,7 +1,8 @@
+import logger from "@/utils/logger";
+
 import { getPostInformation } from "./generated/default";
 import { VxTwitterStatus } from "./generated/model";
 import type { VxTwitter } from "./vxtwitter";
-import logger from "@/utils/logger";
 
 export class VxTwitterServerError extends Error {
   constructor(
@@ -79,9 +80,7 @@ export class VxTwitterApi {
   }
 
   private extractParams(url: string): { screenName: string; tweetId: string } | undefined {
-    const match = url.match(
-      /(?:api\.vxtwitter\.com|\/(?:x|twitter)(?:\.com)?)\/([^/]+)\/status\/(\d{2,20})/,
-    );
+    const match = url.match(/(?:api\.vxtwitter\.com|\/(?:x|twitter)(?:\.com)?)\/([^/]+)\/status\/(\d{2,20})/);
     if (!match) {
       return undefined;
     }

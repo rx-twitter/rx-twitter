@@ -1,9 +1,8 @@
-import { Tweet, TweetMedia } from "@/core/models/Tweet";
-import logger from "@/utils/logger";
-import type { SocialThread, APITwitterStatus } from "@/fxtwitter/generated/model";
-import { FxTwitterApi } from "@/fxtwitter/api";
-
 import { BaseTwitterAdapter, ITwitterAdapter } from "@/adapters/twitter/BaseTwitterAdapter";
+import { Tweet, TweetMedia } from "@/core/models/Tweet";
+import { FxTwitterApi } from "@/fxtwitter/api";
+import type { SocialThread, APITwitterStatus } from "@/fxtwitter/generated/model";
+import logger from "@/utils/logger";
 
 /**
  * FxTwitter API アダプター
@@ -82,12 +81,7 @@ export class FxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
     const author = fxData.author;
     return {
       url: fxData.url,
-      author: this.createAuthor(
-        author.screen_name,
-        author.name,
-        author.screen_name,
-        author.avatar_url ?? ""
-      ),
+      author: this.createAuthor(author.screen_name, author.name, author.screen_name, author.avatar_url ?? ""),
       text: fxData.text,
       metrics: this.createMetrics(fxData.replies, fxData.likes, fxData.reposts),
       media,

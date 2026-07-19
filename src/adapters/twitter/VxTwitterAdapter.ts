@@ -1,9 +1,8 @@
+import { BaseTwitterAdapter, ITwitterAdapter } from "@/adapters/twitter/BaseTwitterAdapter";
 import { Tweet, TweetMedia } from "@/core/models/Tweet";
 import logger from "@/utils/logger";
 import { VxTwitterApi, VxTwitterServerError } from "@/vxtwitter/api";
 import type { VxTwitter } from "@/vxtwitter/vxtwitter";
-
-import { BaseTwitterAdapter, ITwitterAdapter } from "@/adapters/twitter/BaseTwitterAdapter";
 
 /**
  * VxTwitter API アダプター

@@ -1,6 +1,7 @@
-import { SocialThread } from "./generated/model";
-import { get2StatusId } from "./generated/default";
 import logger from "@/utils/logger";
+
+import { get2StatusId } from "./generated/default";
+import { SocialThread } from "./generated/model";
 
 export class FxTwitterApi {
   /**
