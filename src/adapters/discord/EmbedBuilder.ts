@@ -114,8 +114,7 @@ export class DiscordEmbedBuilder {
    * @returns ユーザーページへのMarkdownリンク
    */
   private createMentionLink(username: string): string {
-    const escapedUsername = username.replaceAll("_", "\\_");
-    return `[@${escapedUsername}](https://x.com/${username})`;
+    return `[\`@${username}\`](https://x.com/${username})`;
   }
 
   /**
