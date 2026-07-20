@@ -1,6 +1,6 @@
 {
   "name": "rx-twitter",
-  "version": "2.4.4",
+  "version": "2.4.5",
   "description": "",
   "type": "module",
   "main": "index.js",
@@ -47,7 +47,7 @@
     "chalk": "^5.3.0",
     "discord.js": "^14.26.3",
     "hono": "^4.12.25",
-    "js-yaml": "^5.0.0",
+    "js-yaml": "^5.2.1",
     "redis": "^6.0.0",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
