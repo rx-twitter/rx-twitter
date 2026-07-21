@@ -21,6 +21,7 @@
             "description": "HTTP-style status; mirrors response status code"
           },
           "status": {
+            "nullable": true,
             "anyOf": [
               {
                 "$ref": "#/components/schemas/APITwitterStatus"
@@ -39,9 +40,6 @@
               },
               {
                 "$ref": "#/components/schemas/APIStatusTombstone"
-              },
-              {
-                "nullable": true
               }
             ],
             "description": "Focal post, or a tombstone when the post is unavailable"
@@ -73,12 +71,10 @@
             }
           },
           "author": {
+            "nullable": true,
             "allOf": [
               {
                 "$ref": "#/components/schemas/APIUser"
-              },
-              {
-                "nullable": true
               }
             ]
           }

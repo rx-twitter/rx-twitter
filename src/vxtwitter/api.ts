@@ -50,7 +50,7 @@ export class VxTwitterApi {
         statusCode: 200,
         duration: `${duration}ms`,
       });
-      return parsed.data as VxTwitter;
+      return parsed.data;
     } catch (e) {
       const duration = Date.now() - startTime;
 

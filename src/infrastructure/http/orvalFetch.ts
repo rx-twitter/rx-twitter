@@ -19,6 +19,14 @@ export class ResponseContentTypeError extends Error {
   }
 }
 
+const cancelResponseBody = async (response: Response): Promise<void> => {
+  try {
+    await response.body?.cancel();
+  } catch {
+    // 元の HTTP／Content-Type エラーを優先するため、キャンセル失敗は無視する。
+  }
+};
+
 /**
  * Orval 生成クライアント共通の HTTP 境界。
  * エラーレスポンスは本文を解析せず、ステータスを保持したまま呼び出し元へ渡す。
@@ -27,6 +35,7 @@ export const orvalFetch = async <T>(url: string, options: RequestInit): Promise<
   const response = await fetch(url, options);
 
   if (!response.ok) {
+    await cancelResponseBody(response);
     throw new HttpResponseError(response.status, response.statusText, url);
   }
 
@@ -36,6 +45,7 @@ export const orvalFetch = async <T>(url: string, options: RequestInit): Promise<
 
   const contentType = response.headers.get("content-type");
   if (!contentType || (!contentType.includes("application/json") && !contentType.includes("+json"))) {
+    await cancelResponseBody(response);
     throw new ResponseContentTypeError(contentType, url);
   }
 
