@@ -31,7 +31,7 @@ export class VxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
 
       return this.convertToTweet(data);
     } catch (error) {
-      // 500エラーの場合は上位でフォールバック処理させるため再スロー
+      // 5xxエラーの場合は上位でフォールバック処理させるため再スロー
       if (error instanceof VxTwitterServerError) {
         logger.warn("VxTwitterAdapter: Server error, will try fallback", { status: error.status });
         throw error;

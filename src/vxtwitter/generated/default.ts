@@ -11,31 +11,8 @@ import type {
   VxTwitterStatus
 } from './model';
 
+import { orvalFetch } from '../../infrastructure/http/orvalFetch';
 
-
-export type getPostInformationResponse200 = {
-  data: VxTwitterStatus
-  status: 200
-}
-
-export type getPostInformationResponse404 = {
-  data: void
-  status: 404
-}
-
-export type getPostInformationResponse500 = {
-  data: void
-  status: 500
-}
-
-export type getPostInformationResponseSuccess = (getPostInformationResponse200) & {
-  headers: Headers;
-};
-export type getPostInformationResponseError = (getPostInformationResponse404 | getPostInformationResponse500) & {
-  headers: Headers;
-};
-
-export type getPostInformationResponse = (getPostInformationResponseSuccess | getPostInformationResponseError)
 
 export const getGetPostInformationUrl = (screenName: string,
     tweetId: string,
@@ -59,22 +36,15 @@ export const getGetPostInformationUrl = (screenName: string,
  */
 export const getPostInformation = async (screenName: string,
     tweetId: string,
-    params?: GetPostInformationParams, options?: RequestInit): Promise<getPostInformationResponse> => {
+    params?: GetPostInformationParams, options?: RequestInit): Promise<VxTwitterStatus> => {
 
-  const res = await fetch(getGetPostInformationUrl(screenName,tweetId,params),
+  return orvalFetch<VxTwitterStatus>(getGetPostInformationUrl(screenName,tweetId,params),
   {
     ...options,
     method: 'GET'
 
 
   }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: getPostInformationResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getPostInformationResponse
-}
+);}
 
 

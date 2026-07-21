@@ -12,7 +12,7 @@ export const Translation = zod.object({
   "source_language": zod.string().optional(),
   "destination_language": zod.string().optional(),
   "text": zod.string().optional()
-})
+});
 
 export type Translation = zod.input<typeof Translation>;
 export type TranslationOutput = zod.output<typeof Translation>;

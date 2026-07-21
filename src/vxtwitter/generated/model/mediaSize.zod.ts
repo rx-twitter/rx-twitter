@@ -11,7 +11,7 @@ import { z as zod } from 'zod';
 export const MediaSize = zod.object({
   "height": zod.number().optional(),
   "width": zod.number().optional()
-})
+});
 
 export type MediaSize = zod.input<typeof MediaSize>;
 export type MediaSizeOutput = zod.output<typeof MediaSize>;

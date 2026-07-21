@@ -7,14 +7,11 @@
  * OpenAPI spec version: 1.0.0
  */
 import { z as zod } from 'zod';
+import { PollOption } from './pollOption.zod';
 
 export const PollData = zod.object({
-  "options": zod.array(zod.object({
-  "name": zod.string().optional(),
-  "votes": zod.number().optional(),
-  "percent": zod.number().optional()
-})).optional()
-})
+  "options": zod.array(PollOption).optional()
+});
 
 export type PollData = zod.input<typeof PollData>;
 export type PollDataOutput = zod.output<typeof PollData>;

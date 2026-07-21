@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FxTwitterApi } from "@/fxtwitter/api";
 import { SocialThread } from "@/fxtwitter/generated/model";
+import { HttpResponseError } from "@/infrastructure/http/orvalFetch";
 
 vi.mock("@/utils/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
@@ -30,7 +31,7 @@ describe("FxTwitterApi", () => {
   });
 
   it("正常なレスポンスを検証して返す", async () => {
-    mockGet2StatusId.mockResolvedValue({ data: validThread, status: 200, headers: new Headers() } as never);
+    mockGet2StatusId.mockResolvedValue(validThread as never);
 
     const result = await api.getPostInformation("https://x.com/user/status/123");
 
@@ -39,7 +40,7 @@ describe("FxTwitterApi", () => {
   });
 
   it("404 は undefined を返す", async () => {
-    mockGet2StatusId.mockResolvedValue({ data: {}, status: 404, headers: new Headers() } as never);
+    mockGet2StatusId.mockRejectedValue(new HttpResponseError(404, "Not Found", "https://api.fxtwitter.com"));
 
     const result = await api.getPostInformation("https://x.com/user/status/123");
 
@@ -48,7 +49,7 @@ describe("FxTwitterApi", () => {
 
   it("検証に失敗したレスポンスは undefined を返す", async () => {
     vi.spyOn(SocialThread, "safeParse").mockReturnValue({ success: false, error: { issues: [] } } as never);
-    mockGet2StatusId.mockResolvedValue({ data: { code: 200 }, status: 200, headers: new Headers() } as never);
+    mockGet2StatusId.mockResolvedValue({ code: 200 } as never);
 
     const result = await api.getPostInformation("https://x.com/user/status/123");
 

@@ -6,39 +6,328 @@
  * OpenAPI spec version: 2.0.0
  */
 import { z as zod } from 'zod';
-
-export const aPIBlueskyStatusQuoteOneQuoteTwoAuthorRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIBlueskyStatusQuoteOneQuoteTwoAuthorRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIBlueskyStatusQuoteOneAuthorRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIBlueskyStatusQuoteOneAuthorRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIBlueskyStatusQuoteOneMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIBlueskyStatusQuoteOneMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIBlueskyStatusQuoteOneMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIBlueskyStatusQuoteOneMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIBlueskyStatusQuoteOneRawTextFacetsItemIndicesMin = 2;
-export const aPIBlueskyStatusQuoteOneRawTextFacetsItemIndicesMax = 2;
-
-export const aPIBlueskyStatusQuoteTwoAuthorRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIBlueskyStatusQuoteTwoAuthorRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIBlueskyStatusAuthorRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIBlueskyStatusAuthorRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIBlueskyStatusMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIBlueskyStatusMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIBlueskyStatusMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIBlueskyStatusMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMax = 2;
+import { APIReplyingTo } from './aPIReplyingTo.zod';
+import { APIRepostedBy } from './aPIRepostedBy.zod';
+import { APIStatusTombstone } from './aPIStatusTombstone.zod';
+import { APIUser } from './aPIUser.zod';
 
 export const aPIBlueskyStatusRawTextFacetsItemIndicesMin = 2;
 export const aPIBlueskyStatusRawTextFacetsItemIndicesMax = 2;
 
 
-export const APIBlueskyStatus = zod.object({
+
+/**
+ * Discriminator: single status
+ */
+export type APIBlueskyStatusType = typeof APIBlueskyStatusType[keyof typeof APIBlueskyStatusType];
+
+
+export const APIBlueskyStatusType = {
+  status: 'status',
+} as const;
+export type APIBlueskyStatusPollChoicesItem = {
+  label: string;
+  count: number;
+  percentage: number;
+};
+export type APIBlueskyStatusPoll = {
+  choices: APIBlueskyStatusPollChoicesItem[];
+  total_votes: number;
+  ends_at: string;
+  time_left_en: string;
+};
+export type APIBlueskyStatusMediaExternalType = typeof APIBlueskyStatusMediaExternalType[keyof typeof APIBlueskyStatusMediaExternalType];
+
+
+export const APIBlueskyStatusMediaExternalType = {
+  video: 'video',
+} as const;
+export type APIBlueskyStatusMediaExternal = {
+  type: APIBlueskyStatusMediaExternalType;
+  url: string;
+  thumbnail_url?: string;
+  height?: number;
+  width?: number;
+};
+export type APIBlueskyStatusMediaPhotosItemType = typeof APIBlueskyStatusMediaPhotosItemType[keyof typeof APIBlueskyStatusMediaPhotosItemType];
+
+
+export const APIBlueskyStatusMediaPhotosItemType = {
+  photo: 'photo',
+  gif: 'gif',
+} as const;
+export type APIBlueskyStatusMediaPhotosItem = {
+  id?: string;
+  format?: string;
+  type: APIBlueskyStatusMediaPhotosItemType;
+  url: string;
+  width: number;
+  height: number;
+  /** @nullable */
+  transcode_url?: string | null;
+  altText?: string;
+};
+export type APIBlueskyStatusMediaVideosItemType = typeof APIBlueskyStatusMediaVideosItemType[keyof typeof APIBlueskyStatusMediaVideosItemType];
+
+
+export const APIBlueskyStatusMediaVideosItemType = {
+  video: 'video',
+  gif: 'gif',
+} as const;
+export type APIBlueskyStatusMediaVideosItemFormatsItemContainer = typeof APIBlueskyStatusMediaVideosItemFormatsItemContainer[keyof typeof APIBlueskyStatusMediaVideosItemFormatsItemContainer];
+
+
+export const APIBlueskyStatusMediaVideosItemFormatsItemContainer = {
+  mp4: 'mp4',
+  webm: 'webm',
+  m3u8: 'm3u8',
+} as const;
+export type APIBlueskyStatusMediaVideosItemFormatsItemCodec = typeof APIBlueskyStatusMediaVideosItemFormatsItemCodec[keyof typeof APIBlueskyStatusMediaVideosItemFormatsItemCodec];
+
+
+export const APIBlueskyStatusMediaVideosItemFormatsItemCodec = {
+  h264: 'h264',
+  hevc: 'hevc',
+  vp9: 'vp9',
+  av1: 'av1',
+} as const;
+export type APIBlueskyStatusMediaVideosItemFormatsItem = {
+  container?: APIBlueskyStatusMediaVideosItemFormatsItemContainer;
+  codec?: APIBlueskyStatusMediaVideosItemFormatsItemCodec;
+  bitrate?: number;
+  url: string;
+  size?: number;
+  height?: number;
+  width?: number;
+};
+export type APIBlueskyStatusMediaVideosItem = {
+  id?: string;
+  format?: string;
+  type: APIBlueskyStatusMediaVideosItemType;
+  url: string;
+  width: number;
+  height: number;
+  /** @nullable */
+  thumbnail_url?: string | null;
+  /** @nullable */
+  transcode_url?: string | null;
+  duration: number;
+  filesize?: number;
+  formats: APIBlueskyStatusMediaVideosItemFormatsItem[];
+  publisher?: APIUser & (unknown | null);
+};
+export type APIBlueskyStatusMediaAllItem = {
+  id?: string;
+  format?: string;
+  type: 'photo' | 'gif';
+  url: string;
+  width: number;
+  height: number;
+  /** @nullable */
+  transcode_url?: string | null;
+  altText?: string;
+} | {
+  id?: string;
+  format?: string;
+  type: 'video' | 'gif';
+  url: string;
+  width: number;
+  height: number;
+  /** @nullable */
+  thumbnail_url?: string | null;
+  /** @nullable */
+  transcode_url?: string | null;
+  duration: number;
+  filesize?: number;
+  formats: ({
+  container?: 'mp4' | 'webm' | 'm3u8';
+  codec?: 'h264' | 'hevc' | 'vp9' | 'av1';
+  bitrate?: number;
+  url: string;
+  size?: number;
+  height?: number;
+  width?: number;
+})[];
+  publisher?: APIUser & (unknown | null);
+} | {
+  id?: string;
+  format?: string;
+  type: 'mosaic_photo';
+  url: string;
+  width: number;
+  height: number;
+  formats: {
+  webp: string;
+  jpeg: string;
+};
+} | {
+  id?: string;
+  format?: string;
+  type: string;
+  url: string;
+  width: number;
+  height: number;
+};
+export type APIBlueskyStatusMediaMosaicType = typeof APIBlueskyStatusMediaMosaicType[keyof typeof APIBlueskyStatusMediaMosaicType];
+
+
+export const APIBlueskyStatusMediaMosaicType = {
+  mosaic_photo: 'mosaic_photo',
+} as const;
+export type APIBlueskyStatusMediaMosaicFormats = {
+  webp: string;
+  jpeg: string;
+};
+export type APIBlueskyStatusMediaMosaic = {
+  id?: string;
+  format?: string;
+  type: APIBlueskyStatusMediaMosaicType;
+  url: string;
+  width: number;
+  height: number;
+  formats: APIBlueskyStatusMediaMosaicFormats;
+};
+export type APIBlueskyStatusMediaBroadcastState = typeof APIBlueskyStatusMediaBroadcastState[keyof typeof APIBlueskyStatusMediaBroadcastState];
+
+
+export const APIBlueskyStatusMediaBroadcastState = {
+  LIVE: 'LIVE',
+  ENDED: 'ENDED',
+} as const;
+export type APIBlueskyStatusMediaBroadcastBroadcaster = {
+  username: string;
+  display_name: string;
+  id: string;
+};
+export type APIBlueskyStatusMediaBroadcastStream = {
+  url: string;
+};
+export type APIBlueskyStatusMediaBroadcastOrientation = typeof APIBlueskyStatusMediaBroadcastOrientation[keyof typeof APIBlueskyStatusMediaBroadcastOrientation];
+
+
+export const APIBlueskyStatusMediaBroadcastOrientation = {
+  landscape: 'landscape',
+  portrait: 'portrait',
+} as const;
+export type APIBlueskyStatusMediaBroadcastThumbnailOriginal = {
+  url: string;
+};
+export type APIBlueskyStatusMediaBroadcastThumbnailSmall = {
+  url: string;
+};
+export type APIBlueskyStatusMediaBroadcastThumbnailMedium = {
+  url: string;
+};
+export type APIBlueskyStatusMediaBroadcastThumbnailLarge = {
+  url: string;
+};
+export type APIBlueskyStatusMediaBroadcastThumbnailXLarge = {
+  url: string;
+};
+export type APIBlueskyStatusMediaBroadcastThumbnail = {
+  original: APIBlueskyStatusMediaBroadcastThumbnailOriginal;
+  small?: APIBlueskyStatusMediaBroadcastThumbnailSmall;
+  medium?: APIBlueskyStatusMediaBroadcastThumbnailMedium;
+  large?: APIBlueskyStatusMediaBroadcastThumbnailLarge;
+  x_large?: APIBlueskyStatusMediaBroadcastThumbnailXLarge;
+};
+export type APIBlueskyStatusMediaBroadcast = {
+  url: string;
+  width: number;
+  height: number;
+  state: APIBlueskyStatusMediaBroadcastState;
+  broadcaster: APIBlueskyStatusMediaBroadcastBroadcaster;
+  stream?: APIBlueskyStatusMediaBroadcastStream;
+  title: string;
+  source: string;
+  orientation: APIBlueskyStatusMediaBroadcastOrientation;
+  broadcast_id: string;
+  media_id: string;
+  media_key: string;
+  is_high_latency: boolean;
+  thumbnail: APIBlueskyStatusMediaBroadcastThumbnail;
+};
+export type APIBlueskyStatusMedia = {
+  external?: APIBlueskyStatusMediaExternal;
+  photos?: APIBlueskyStatusMediaPhotosItem[];
+  videos?: APIBlueskyStatusMediaVideosItem[];
+  all?: APIBlueskyStatusMediaAllItem[];
+  mosaic?: APIBlueskyStatusMediaMosaic;
+  broadcast?: APIBlueskyStatusMediaBroadcast;
+};
+export type APIBlueskyStatusRawTextFacetsItem = {
+  /** Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image) */
+  type: string;
+  /**
+     * Start and end UTF-16 indices
+     * @minItems 2
+     * @maxItems 2
+     */
+  indices: number[];
+  original?: string;
+  replacement?: string;
+  display?: string;
+  id?: string;
+};
+export type APIBlueskyStatusRawText = {
+  text: string;
+  facets: APIBlueskyStatusRawTextFacetsItem[];
+};
+export type APIBlueskyStatusTranslation = {
+  text: string;
+  source_lang: string;
+  source_lang_en: string;
+  target_lang: string;
+  provider: string;
+};
+export type APIBlueskyStatusEmbedCard = typeof APIBlueskyStatusEmbedCard[keyof typeof APIBlueskyStatusEmbedCard];
+
+
+export const APIBlueskyStatusEmbedCard = {
+  tweet: 'tweet',
+  summary: 'summary',
+  summary_large_image: 'summary_large_image',
+  player: 'player',
+} as const;
+export type APIBlueskyStatusProvider = typeof APIBlueskyStatusProvider[keyof typeof APIBlueskyStatusProvider];
+
+
+export const APIBlueskyStatusProvider = {
+  bluesky: 'bluesky',
+} as const;
+
+export type APIBlueskyStatus = {
+  /** Discriminator: single status */
+  type: APIBlueskyStatusType;
+  id: string;
+  cid?: string;
+  at_uri?: string;
+  url: string;
+  text: string;
+  created_at: string;
+  created_timestamp: number;
+  likes: number;
+  reposts: number;
+  quotes?: number;
+  replies: number;
+  quote?: APIBlueskyStatus | APIStatusTombstone;
+  poll?: APIBlueskyStatusPoll;
+  author: APIUser;
+  media: APIBlueskyStatusMedia;
+  raw_text: APIBlueskyStatusRawText;
+  /** @nullable */
+  lang: string | null;
+  translation?: APIBlueskyStatusTranslation;
+  possibly_sensitive: boolean;
+  replying_to: APIReplyingTo | null;
+  /** @nullable */
+  source: string | null;
+  embed_card: APIBlueskyStatusEmbedCard;
+  provider: APIBlueskyStatusProvider;
+  reposted_by?: APIRepostedBy | null;
+};
+
+export const APIBlueskyStatus: zod.ZodType<APIBlueskyStatus> = zod.object({
   "type": zod.enum(['status']).describe('Discriminator: single status'),
   "id": zod.string(),
   "cid": zod.string().optional(),
@@ -51,85 +340,7 @@ export const APIBlueskyStatus = zod.object({
   "reposts": zod.number(),
   "quotes": zod.number().optional(),
   "replies": zod.number(),
-  "quote": zod.union([zod.object({
-  "type": zod.enum(['status']).describe('Discriminator: single status'),
-  "id": zod.string(),
-  "cid": zod.string().optional(),
-  "at_uri": zod.string().optional(),
-  "url": zod.string(),
-  "text": zod.string(),
-  "created_at": zod.string(),
-  "created_timestamp": zod.number(),
-  "likes": zod.number(),
-  "reposts": zod.number(),
-  "quotes": zod.number().optional(),
-  "replies": zod.number(),
-  "quote": zod.union([zod.unknown(),zod.object({
-  "type": zod.enum(['tombstone']).describe('Placeholder for an unavailable post (quote\/thread).'),
-  "provider": zod.enum(['twitter', 'bluesky', 'mastodon', 'tiktok', 'instagram', 'threads']),
-  "reason": zod.enum(['deleted', 'suspended', 'private', 'blocked', 'unavailable']).describe('Why the post is unavailable'),
-  "message": zod.string(),
-  "id": zod.string().optional(),
-  "url": zod.string().optional(),
-  "author": zod.object({
-  "type": zod.enum(['profile']).optional().describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string().optional(),
-  "name": zod.string().optional(),
-  "screen_name": zod.string().optional(),
-  "avatar_url": zod.string().nullish(),
-  "banner_url": zod.string().nullish(),
-  "description": zod.string().optional(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIBlueskyStatusQuoteOneQuoteTwoAuthorRawDescriptionFacetsItemIndicesMin).max(aPIBlueskyStatusQuoteOneQuoteTwoAuthorRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}).optional(),
-  "location": zod.string().optional(),
-  "url": zod.string().optional(),
-  "protected": zod.boolean().optional(),
-  "followers": zod.number().optional(),
-  "following": zod.number().optional(),
-  "statuses": zod.number().optional(),
-  "media_count": zod.number().optional(),
-  "likes": zod.number().optional(),
-  "joined": zod.string().optional(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullish(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).optional(),
-  "at_uri": zod.string().optional(),
-  "cid": zod.string().optional()
-})]).optional(),
+  "quote": zod.union([zod.lazy(() => APIBlueskyStatus),APIStatusTombstone]).optional(),
   "poll": zod.object({
   "choices": zod.array(zod.object({
   "label": zod.string(),
@@ -140,62 +351,7 @@ export const APIBlueskyStatus = zod.object({
   "ends_at": zod.string(),
   "time_left_en": zod.string()
 }).optional(),
-  "author": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIBlueskyStatusQuoteOneAuthorRawDescriptionFacetsItemIndicesMin).max(aPIBlueskyStatusQuoteOneAuthorRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}),
+  "author": APIUser,
   "media": zod.object({
   "external": zod.object({
   "type": zod.enum(['video']),
@@ -234,62 +390,7 @@ export const APIBlueskyStatus = zod.object({
   "height": zod.number().optional(),
   "width": zod.number().optional()
 })),
-  "publisher": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIBlueskyStatusQuoteOneMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMin).max(aPIBlueskyStatusQuoteOneMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).and(zod.unknown().nullable()).optional()
+  "publisher": APIUser.and(zod.unknown().nullable()).optional()
 })).optional(),
   "all": zod.array(zod.union([zod.object({
   "id": zod.string().optional(),
@@ -320,481 +421,7 @@ export const APIBlueskyStatus = zod.object({
   "height": zod.number().optional(),
   "width": zod.number().optional()
 })),
-  "publisher": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIBlueskyStatusQuoteOneMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMin).max(aPIBlueskyStatusQuoteOneMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).and(zod.unknown().nullable()).optional()
-}),zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['mosaic_photo']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "formats": zod.object({
-  "webp": zod.string(),
-  "jpeg": zod.string()
-})
-}),zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.string(),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number()
-})])).optional(),
-  "mosaic": zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['mosaic_photo']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "formats": zod.object({
-  "webp": zod.string(),
-  "jpeg": zod.string()
-})
-}).optional(),
-  "broadcast": zod.object({
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "state": zod.enum(['LIVE', 'ENDED']),
-  "broadcaster": zod.object({
-  "username": zod.string(),
-  "display_name": zod.string(),
-  "id": zod.string()
-}),
-  "stream": zod.object({
-  "url": zod.string()
-}).optional(),
-  "title": zod.string(),
-  "source": zod.string(),
-  "orientation": zod.enum(['landscape', 'portrait']),
-  "broadcast_id": zod.string(),
-  "media_id": zod.string(),
-  "media_key": zod.string(),
-  "is_high_latency": zod.boolean(),
-  "thumbnail": zod.object({
-  "original": zod.object({
-  "url": zod.string()
-}),
-  "small": zod.object({
-  "url": zod.string()
-}).optional(),
-  "medium": zod.object({
-  "url": zod.string()
-}).optional(),
-  "large": zod.object({
-  "url": zod.string()
-}).optional(),
-  "x_large": zod.object({
-  "url": zod.string()
-}).optional()
-})
-}).optional()
-}),
-  "raw_text": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIBlueskyStatusQuoteOneRawTextFacetsItemIndicesMin).max(aPIBlueskyStatusQuoteOneRawTextFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "lang": zod.string().nullable(),
-  "translation": zod.object({
-  "text": zod.string(),
-  "source_lang": zod.string(),
-  "source_lang_en": zod.string(),
-  "target_lang": zod.string(),
-  "provider": zod.string()
-}).optional(),
-  "possibly_sensitive": zod.boolean(),
-  "replying_to": zod.object({
-  "screen_name": zod.string().describe('Handle or account id used in permalinks (@user on X).'),
-  "status": zod.string().describe('Parent post id (X: snowflake; Bluesky: record key).'),
-  "url": zod.string().optional().describe('Permalink to the parent post when known.'),
-  "profile_url": zod.string().optional().describe('Permalink to the parent author profile when known.'),
-  "display_name": zod.string().optional().describe('Display name of the parent author when known.')
-}).nullable(),
-  "source": zod.string().nullable(),
-  "embed_card": zod.enum(['tweet', 'summary', 'summary_large_image', 'player']),
-  "provider": zod.enum(['bluesky']),
-  "reposted_by": zod.object({
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullish(),
-  "url": zod.string().optional()
-}).nullish()
-}),zod.object({
-  "type": zod.enum(['tombstone']).describe('Placeholder for an unavailable post (quote\/thread).'),
-  "provider": zod.enum(['twitter', 'bluesky', 'mastodon', 'tiktok', 'instagram', 'threads']),
-  "reason": zod.enum(['deleted', 'suspended', 'private', 'blocked', 'unavailable']).describe('Why the post is unavailable'),
-  "message": zod.string(),
-  "id": zod.string().optional(),
-  "url": zod.string().optional(),
-  "author": zod.object({
-  "type": zod.enum(['profile']).optional().describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string().optional(),
-  "name": zod.string().optional(),
-  "screen_name": zod.string().optional(),
-  "avatar_url": zod.string().nullish(),
-  "banner_url": zod.string().nullish(),
-  "description": zod.string().optional(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIBlueskyStatusQuoteTwoAuthorRawDescriptionFacetsItemIndicesMin).max(aPIBlueskyStatusQuoteTwoAuthorRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}).optional(),
-  "location": zod.string().optional(),
-  "url": zod.string().optional(),
-  "protected": zod.boolean().optional(),
-  "followers": zod.number().optional(),
-  "following": zod.number().optional(),
-  "statuses": zod.number().optional(),
-  "media_count": zod.number().optional(),
-  "likes": zod.number().optional(),
-  "joined": zod.string().optional(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullish(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).optional(),
-  "at_uri": zod.string().optional(),
-  "cid": zod.string().optional()
-})]).optional(),
-  "poll": zod.object({
-  "choices": zod.array(zod.object({
-  "label": zod.string(),
-  "count": zod.number(),
-  "percentage": zod.number()
-})),
-  "total_votes": zod.number(),
-  "ends_at": zod.string(),
-  "time_left_en": zod.string()
-}).optional(),
-  "author": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIBlueskyStatusAuthorRawDescriptionFacetsItemIndicesMin).max(aPIBlueskyStatusAuthorRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}),
-  "media": zod.object({
-  "external": zod.object({
-  "type": zod.enum(['video']),
-  "url": zod.string(),
-  "thumbnail_url": zod.string().optional(),
-  "height": zod.number().optional(),
-  "width": zod.number().optional()
-}).optional(),
-  "photos": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['photo', 'gif']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "transcode_url": zod.string().nullish(),
-  "altText": zod.string().optional()
-})).optional(),
-  "videos": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['video', 'gif']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "thumbnail_url": zod.string().nullish(),
-  "transcode_url": zod.string().nullish(),
-  "duration": zod.number(),
-  "filesize": zod.number().optional(),
-  "formats": zod.array(zod.object({
-  "container": zod.enum(['mp4', 'webm', 'm3u8']).optional(),
-  "codec": zod.enum(['h264', 'hevc', 'vp9', 'av1']).optional(),
-  "bitrate": zod.number().optional(),
-  "url": zod.string(),
-  "size": zod.number().optional(),
-  "height": zod.number().optional(),
-  "width": zod.number().optional()
-})),
-  "publisher": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIBlueskyStatusMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMin).max(aPIBlueskyStatusMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).and(zod.unknown().nullable()).optional()
-})).optional(),
-  "all": zod.array(zod.union([zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['photo', 'gif']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "transcode_url": zod.string().nullish(),
-  "altText": zod.string().optional()
-}),zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['video', 'gif']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "thumbnail_url": zod.string().nullish(),
-  "transcode_url": zod.string().nullish(),
-  "duration": zod.number(),
-  "filesize": zod.number().optional(),
-  "formats": zod.array(zod.object({
-  "container": zod.enum(['mp4', 'webm', 'm3u8']).optional(),
-  "codec": zod.enum(['h264', 'hevc', 'vp9', 'av1']).optional(),
-  "bitrate": zod.number().optional(),
-  "url": zod.string(),
-  "size": zod.number().optional(),
-  "height": zod.number().optional(),
-  "width": zod.number().optional()
-})),
-  "publisher": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIBlueskyStatusMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMin).max(aPIBlueskyStatusMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).and(zod.unknown().nullable()).optional()
+  "publisher": APIUser.and(zod.unknown().nullable()).optional()
 }),zod.object({
   "id": zod.string().optional(),
   "format": zod.string().optional(),
@@ -885,24 +512,11 @@ export const APIBlueskyStatus = zod.object({
   "provider": zod.string()
 }).optional(),
   "possibly_sensitive": zod.boolean(),
-  "replying_to": zod.object({
-  "screen_name": zod.string().describe('Handle or account id used in permalinks (@user on X).'),
-  "status": zod.string().describe('Parent post id (X: snowflake; Bluesky: record key).'),
-  "url": zod.string().optional().describe('Permalink to the parent post when known.'),
-  "profile_url": zod.string().optional().describe('Permalink to the parent author profile when known.'),
-  "display_name": zod.string().optional().describe('Display name of the parent author when known.')
-}).nullable(),
+  "replying_to": APIReplyingTo,
   "source": zod.string().nullable(),
   "embed_card": zod.enum(['tweet', 'summary', 'summary_large_image', 'player']),
   "provider": zod.enum(['bluesky']),
-  "reposted_by": zod.object({
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullish(),
-  "url": zod.string().optional()
-}).nullish()
-})
+  "reposted_by": APIRepostedBy.optional()
+});
 
-export type APIBlueskyStatus = zod.input<typeof APIBlueskyStatus>;
 export type APIBlueskyStatusOutput = zod.output<typeof APIBlueskyStatus>;

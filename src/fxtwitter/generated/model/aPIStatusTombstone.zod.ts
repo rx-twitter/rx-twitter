@@ -6,9 +6,11 @@
  * OpenAPI spec version: 2.0.0
  */
 import { z as zod } from 'zod';
+import { APIAboutAccount } from './aPIAboutAccount.zod';
 
 export const aPIStatusTombstoneAuthorRawDescriptionFacetsItemIndicesMin = 2;
 export const aPIStatusTombstoneAuthorRawDescriptionFacetsItemIndicesMax = 2;
+
 
 
 export const APIStatusTombstone = zod.object({
@@ -62,21 +64,12 @@ export const APIStatusTombstone = zod.object({
   "identity_verified": zod.boolean().optional(),
   "verified_by": zod.string().optional()
 }).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
+  "about_account": APIAboutAccount.optional(),
   "profile_embed": zod.boolean().optional()
 }).optional(),
   "at_uri": zod.string().optional(),
   "cid": zod.string().optional()
-})
+});
 
 export type APIStatusTombstone = zod.input<typeof APIStatusTombstone>;
 export type APIStatusTombstoneOutput = zod.output<typeof APIStatusTombstone>;

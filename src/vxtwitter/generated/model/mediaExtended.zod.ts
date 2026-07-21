@@ -7,19 +7,17 @@
  * OpenAPI spec version: 1.0.0
  */
 import { z as zod } from 'zod';
+import { MediaSize } from './mediaSize.zod';
 
 export const MediaExtended = zod.object({
   "altText": zod.string().nullish(),
-  "size": zod.object({
-  "height": zod.number().optional(),
-  "width": zod.number().optional()
-}).optional(),
+  "size": MediaSize.optional(),
   "thumbnail_url": zod.string().nullish(),
-  "type": zod.enum(['image', 'video', 'gif']).optional(),
-  "url": zod.string().optional(),
+  "type": zod.enum(['image', 'video', 'gif', 'animated_gif']),
+  "url": zod.string(),
   "duration_millis": zod.number().nullish(),
   "id_str": zod.string().nullish()
-})
+});
 
 export type MediaExtended = zod.input<typeof MediaExtended>;
 export type MediaExtendedOutput = zod.output<typeof MediaExtended>;

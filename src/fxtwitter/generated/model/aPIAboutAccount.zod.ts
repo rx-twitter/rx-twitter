@@ -16,7 +16,7 @@ export const APIAboutAccount = zod.object({
   "count": zod.number(),
   "last_changed_at": zod.string().nullable()
 }).optional()
-})
+});
 
 export type APIAboutAccount = zod.input<typeof APIAboutAccount>;
 export type APIAboutAccountOutput = zod.output<typeof APIAboutAccount>;

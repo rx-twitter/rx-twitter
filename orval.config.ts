@@ -14,14 +14,17 @@ const config: OrvalConfig = {
       client: "fetch",
       mode: "tags",
       baseUrl: "https://api.fxtwitter.com",
-    },
-    override: {
-      fetch: {
-        runtimeValidation: true,
-        includeHttpResponseReturnType: false,
-      },
-      zod: {
-        generateReusableSchemas: true,
+      override: {
+        mutator: {
+          path: "./src/infrastructure/http/orvalFetch.ts",
+          name: "orvalFetch",
+        },
+        fetch: {
+          includeHttpResponseReturnType: false,
+        },
+        zod: {
+          generateReusableSchemas: true,
+        },
       },
     },
   },
@@ -38,14 +41,17 @@ const config: OrvalConfig = {
       client: "fetch",
       mode: "tags",
       baseUrl: "https://api.vxtwitter.com",
-    },
-    override: {
-      fetch: {
-        runtimeValidation: true,
-        includeHttpResponseReturnType: false,
-      },
-      zod: {
-        generateReusableSchemas: true,
+      override: {
+        mutator: {
+          path: "./src/infrastructure/http/orvalFetch.ts",
+          name: "orvalFetch",
+        },
+        fetch: {
+          includeHttpResponseReturnType: false,
+        },
+        zod: {
+          generateReusableSchemas: true,
+        },
       },
     },
   },

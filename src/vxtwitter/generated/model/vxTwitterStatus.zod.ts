@@ -7,120 +7,90 @@
  * OpenAPI spec version: 1.0.0
  */
 import { z as zod } from 'zod';
+import { Article } from './article.zod';
+import { MediaExtended } from './mediaExtended.zod';
+import { PollData } from './pollData.zod';
+import { Translation } from './translation.zod';
 
-export const VxTwitterStatus = zod.object({
-  "date": zod.string().optional().describe('ツイート投稿日時 (RFC 2822形式)'),
+export type VxTwitterStatus = {
+  /** ツイート投稿日時 (RFC 2822形式) */
+  date: string;
+  /** ツイート投稿日時 (Unix Epoch) */
+  date_epoch?: number;
+  hashtags?: string[];
+  likes: number;
+  /** メディアのURL一覧 (常に配列、空の場合もあり) */
+  mediaURLs?: string[];
+  /** メディアの詳細情報。レスポンスには常に配列で存在する（空の場合も）。 */
+  media_extended?: MediaExtended[];
+  replies: number;
+  retweets: number;
+  text: string;
+  tweetID?: string;
+  tweetURL: string;
+  user_name: string;
+  user_screen_name: string;
+  user_profile_image_url: string;
+  conversationID?: string;
+  possibly_sensitive?: boolean;
+  /**
+     * 引用ツイートのURL (引用がない場合は null)
+     * @nullable
+     */
+  qrtURL?: string | null;
+  /** 引用ツイート (引用がない場合は null) */
+  qrt?: VxTwitterStatus | null;
+  /** @nullable */
+  communityNote?: string | null;
+  allSameType?: boolean;
+  hasMedia?: boolean;
+  /** @nullable */
+  combinedMediaUrl?: string | null;
+  pollData?: PollData | null;
+  article?: Article | null;
+  /** @nullable */
+  lang?: string | null;
+  /** @nullable */
+  replyingTo?: string | null;
+  /** @nullable */
+  replyingToID?: string | null;
+  fetched_on?: number;
+  /** @nullable */
+  retweetURL?: string | null;
+  translation?: Translation | null;
+};
+
+export const VxTwitterStatus: zod.ZodType<VxTwitterStatus> = zod.object({
+  "date": zod.string().describe('ツイート投稿日時 (RFC 2822形式)'),
   "date_epoch": zod.number().optional().describe('ツイート投稿日時 (Unix Epoch)'),
   "hashtags": zod.array(zod.string()).optional(),
-  "likes": zod.number().optional(),
+  "likes": zod.number(),
   "mediaURLs": zod.array(zod.string()).optional().describe('メディアのURL一覧 (常に配列、空の場合もあり)'),
-  "media_extended": zod.array(zod.object({
-  "altText": zod.string().nullish(),
-  "size": zod.object({
-  "height": zod.number().optional(),
-  "width": zod.number().optional()
-}).optional(),
-  "thumbnail_url": zod.string().nullish(),
-  "type": zod.enum(['image', 'video', 'gif']).optional(),
-  "url": zod.string().optional(),
-  "duration_millis": zod.number().nullish(),
-  "id_str": zod.string().nullish()
-})).optional().describe('メディアの詳細情報。レスポンスには常に配列で存在する（空の場合も）。'),
-  "replies": zod.number().optional(),
-  "retweets": zod.number().optional(),
-  "text": zod.string().optional(),
+  "media_extended": zod.array(MediaExtended).optional().describe('メディアの詳細情報。レスポンスには常に配列で存在する（空の場合も）。'),
+  "replies": zod.number(),
+  "retweets": zod.number(),
+  "text": zod.string(),
   "tweetID": zod.string().optional(),
-  "tweetURL": zod.string().optional(),
-  "user_name": zod.string().optional(),
-  "user_screen_name": zod.string().optional(),
-  "user_profile_image_url": zod.string().optional(),
+  "tweetURL": zod.string(),
+  "user_name": zod.string(),
+  "user_screen_name": zod.string(),
+  "user_profile_image_url": zod.string(),
   "conversationID": zod.string().optional(),
   "possibly_sensitive": zod.boolean().optional(),
   "qrtURL": zod.string().nullish().describe('引用ツイートのURL (引用がない場合は null)'),
-  "qrt": zod.object({
-  "date": zod.string().optional().describe('ツイート投稿日時 (RFC 2822形式)'),
-  "date_epoch": zod.number().optional().describe('ツイート投稿日時 (Unix Epoch)'),
-  "hashtags": zod.array(zod.string()).optional(),
-  "likes": zod.number().optional(),
-  "mediaURLs": zod.array(zod.string()).optional().describe('メディアのURL一覧 (常に配列、空の場合もあり)'),
-  "media_extended": zod.array(zod.object({
-  "altText": zod.string().nullish(),
-  "size": zod.object({
-  "height": zod.number().optional(),
-  "width": zod.number().optional()
-}).optional(),
-  "thumbnail_url": zod.string().nullish(),
-  "type": zod.enum(['image', 'video', 'gif']).optional(),
-  "url": zod.string().optional(),
-  "duration_millis": zod.number().nullish(),
-  "id_str": zod.string().nullish()
-})).optional().describe('メディアの詳細情報。レスポンスには常に配列で存在する（空の場合も）。'),
-  "replies": zod.number().optional(),
-  "retweets": zod.number().optional(),
-  "text": zod.string().optional(),
-  "tweetID": zod.string().optional(),
-  "tweetURL": zod.string().optional(),
-  "user_name": zod.string().optional(),
-  "user_screen_name": zod.string().optional(),
-  "user_profile_image_url": zod.string().optional(),
-  "conversationID": zod.string().optional(),
-  "possibly_sensitive": zod.boolean().optional(),
-  "qrtURL": zod.string().nullish().describe('引用ツイートのURL (引用がない場合は null)'),
-  "qrt": zod.unknown().optional(),
+  "qrt": zod.lazy(() => VxTwitterStatus).nullish().describe('引用ツイート (引用がない場合は null)'),
   "communityNote": zod.string().nullish(),
   "allSameType": zod.boolean().optional(),
   "hasMedia": zod.boolean().optional(),
   "combinedMediaUrl": zod.string().nullish(),
-  "pollData": zod.object({
-  "options": zod.array(zod.object({
-  "name": zod.string().optional(),
-  "votes": zod.number().optional(),
-  "percent": zod.number().optional()
-})).optional()
-}).nullish(),
-  "article": zod.object({
-  "title": zod.string().optional(),
-  "preview_text": zod.string().optional(),
-  "image": zod.string().nullish()
-}).nullish(),
+  "pollData": PollData.nullish(),
+  "article": Article.nullish(),
   "lang": zod.string().nullish(),
   "replyingTo": zod.string().nullish(),
   "replyingToID": zod.string().nullish(),
   "fetched_on": zod.number().optional(),
   "retweetURL": zod.string().nullish(),
-  "translation": zod.object({
-  "source_language": zod.string().optional(),
-  "destination_language": zod.string().optional(),
-  "text": zod.string().optional()
-}).nullish()
-}).nullish().describe('引用ツイート (引用がない場合は null)'),
-  "communityNote": zod.string().nullish(),
-  "allSameType": zod.boolean().optional(),
-  "hasMedia": zod.boolean().optional(),
-  "combinedMediaUrl": zod.string().nullish(),
-  "pollData": zod.object({
-  "options": zod.array(zod.object({
-  "name": zod.string().optional(),
-  "votes": zod.number().optional(),
-  "percent": zod.number().optional()
-})).optional()
-}).nullish(),
-  "article": zod.object({
-  "title": zod.string().optional(),
-  "preview_text": zod.string().optional(),
-  "image": zod.string().nullish()
-}).nullish(),
-  "lang": zod.string().nullish(),
-  "replyingTo": zod.string().nullish(),
-  "replyingToID": zod.string().nullish(),
-  "fetched_on": zod.number().optional(),
-  "retweetURL": zod.string().nullish(),
-  "translation": zod.object({
-  "source_language": zod.string().optional(),
-  "destination_language": zod.string().optional(),
-  "text": zod.string().optional()
-}).nullish()
-})
+  "translation": Translation.nullish()
+});
 
-export type VxTwitterStatus = zod.input<typeof VxTwitterStatus>;
 export type VxTwitterStatusOutput = zod.output<typeof VxTwitterStatus>;

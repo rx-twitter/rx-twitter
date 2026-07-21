@@ -12,7 +12,7 @@ export const PollOption = zod.object({
   "name": zod.string().optional(),
   "votes": zod.number().optional(),
   "percent": zod.number().optional()
-})
+});
 
 export type PollOption = zod.input<typeof PollOption>;
 export type PollOptionOutput = zod.output<typeof PollOption>;

@@ -6,9 +6,11 @@
  * OpenAPI spec version: 2.0.0
  */
 import { z as zod } from 'zod';
+import { APIAboutAccount } from './aPIAboutAccount.zod';
 
 export const aPIUserRawDescriptionFacetsItemIndicesMin = 2;
 export const aPIUserRawDescriptionFacetsItemIndicesMax = 2;
+
 
 
 export const APIUser = zod.object({
@@ -55,18 +57,9 @@ export const APIUser = zod.object({
   "identity_verified": zod.boolean().optional(),
   "verified_by": zod.string().optional()
 }).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
+  "about_account": APIAboutAccount.optional(),
   "profile_embed": zod.boolean().optional()
-})
+});
 
 export type APIUser = zod.input<typeof APIUser>;
 export type APIUserOutput = zod.output<typeof APIUser>;

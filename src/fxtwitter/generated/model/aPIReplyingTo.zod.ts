@@ -13,7 +13,7 @@ export const APIReplyingTo = zod.object({
   "url": zod.string().optional().describe('Permalink to the parent post when known.'),
   "profile_url": zod.string().optional().describe('Permalink to the parent author profile when known.'),
   "display_name": zod.string().optional().describe('Display name of the parent author when known.')
-}).nullable()
+}).nullable();
 
 export type APIReplyingTo = zod.input<typeof APIReplyingTo>;
 export type APIReplyingToOutput = zod.output<typeof APIReplyingTo>;

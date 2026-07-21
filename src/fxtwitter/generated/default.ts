@@ -6,46 +6,12 @@
  * OpenAPI spec version: 2.0.0
  */
 import type {
-  ApiQueryError,
   Get2StatusIdParams,
   SocialThread
 } from './model';
 
+import { orvalFetch } from '../../infrastructure/http/orvalFetch';
 
-
-export type get2StatusIdResponse200 = {
-  data: SocialThread
-  status: 200
-}
-
-export type get2StatusIdResponse400 = {
-  data: ApiQueryError
-  status: 400
-}
-
-export type get2StatusIdResponse401 = {
-  data: SocialThread
-  status: 401
-}
-
-export type get2StatusIdResponse404 = {
-  data: SocialThread
-  status: 404
-}
-
-export type get2StatusIdResponse500 = {
-  data: SocialThread
-  status: 500
-}
-
-export type get2StatusIdResponseSuccess = (get2StatusIdResponse200) & {
-  headers: Headers;
-};
-export type get2StatusIdResponseError = (get2StatusIdResponse400 | get2StatusIdResponse401 | get2StatusIdResponse404 | get2StatusIdResponse500) & {
-  headers: Headers;
-};
-
-export type get2StatusIdResponse = (get2StatusIdResponseSuccess | get2StatusIdResponseError)
 
 export const getGet2StatusIdUrl = (id: string,
     params?: Get2StatusIdParams,) => {
@@ -68,22 +34,15 @@ export const getGet2StatusIdUrl = (id: string,
  * @summary Get post
  */
 export const get2StatusId = async (id: string,
-    params?: Get2StatusIdParams, options?: RequestInit): Promise<get2StatusIdResponse> => {
+    params?: Get2StatusIdParams, options?: RequestInit): Promise<SocialThread> => {
 
-  const res = await fetch(getGet2StatusIdUrl(id,params),
+  return orvalFetch<SocialThread>(getGet2StatusIdUrl(id,params),
   {
     ...options,
     method: 'GET'
 
 
   }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: get2StatusIdResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as get2StatusIdResponse
-}
+);}
 
 

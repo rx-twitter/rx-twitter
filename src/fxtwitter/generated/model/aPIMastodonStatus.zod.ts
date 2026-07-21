@@ -6,39 +6,326 @@
  * OpenAPI spec version: 2.0.0
  */
 import { z as zod } from 'zod';
-
-export const aPIMastodonStatusQuoteOneQuoteTwoAuthorRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIMastodonStatusQuoteOneQuoteTwoAuthorRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIMastodonStatusQuoteOneAuthorRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIMastodonStatusQuoteOneAuthorRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIMastodonStatusQuoteOneMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIMastodonStatusQuoteOneMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIMastodonStatusQuoteOneMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIMastodonStatusQuoteOneMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIMastodonStatusQuoteOneRawTextFacetsItemIndicesMin = 2;
-export const aPIMastodonStatusQuoteOneRawTextFacetsItemIndicesMax = 2;
-
-export const aPIMastodonStatusQuoteTwoAuthorRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIMastodonStatusQuoteTwoAuthorRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIMastodonStatusAuthorRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIMastodonStatusAuthorRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIMastodonStatusMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIMastodonStatusMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMax = 2;
-
-export const aPIMastodonStatusMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMin = 2;
-export const aPIMastodonStatusMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMax = 2;
+import { APIReplyingTo } from './aPIReplyingTo.zod';
+import { APIRepostedBy } from './aPIRepostedBy.zod';
+import { APIStatusTombstone } from './aPIStatusTombstone.zod';
+import { APIUser } from './aPIUser.zod';
 
 export const aPIMastodonStatusRawTextFacetsItemIndicesMin = 2;
 export const aPIMastodonStatusRawTextFacetsItemIndicesMax = 2;
 
 
-export const APIMastodonStatus = zod.object({
+
+/**
+ * Discriminator: single post/status (API v2).
+ */
+export type APIMastodonStatusType = typeof APIMastodonStatusType[keyof typeof APIMastodonStatusType];
+
+
+export const APIMastodonStatusType = {
+  status: 'status',
+} as const;
+export type APIMastodonStatusPollChoicesItem = {
+  label: string;
+  count: number;
+  percentage: number;
+};
+export type APIMastodonStatusPoll = {
+  choices: APIMastodonStatusPollChoicesItem[];
+  total_votes: number;
+  ends_at: string;
+  time_left_en: string;
+};
+export type APIMastodonStatusMediaExternalType = typeof APIMastodonStatusMediaExternalType[keyof typeof APIMastodonStatusMediaExternalType];
+
+
+export const APIMastodonStatusMediaExternalType = {
+  video: 'video',
+} as const;
+export type APIMastodonStatusMediaExternal = {
+  type: APIMastodonStatusMediaExternalType;
+  url: string;
+  thumbnail_url?: string;
+  height?: number;
+  width?: number;
+};
+export type APIMastodonStatusMediaPhotosItemType = typeof APIMastodonStatusMediaPhotosItemType[keyof typeof APIMastodonStatusMediaPhotosItemType];
+
+
+export const APIMastodonStatusMediaPhotosItemType = {
+  photo: 'photo',
+  gif: 'gif',
+} as const;
+export type APIMastodonStatusMediaPhotosItem = {
+  id?: string;
+  format?: string;
+  type: APIMastodonStatusMediaPhotosItemType;
+  url: string;
+  width: number;
+  height: number;
+  /** @nullable */
+  transcode_url?: string | null;
+  altText?: string;
+};
+export type APIMastodonStatusMediaVideosItemType = typeof APIMastodonStatusMediaVideosItemType[keyof typeof APIMastodonStatusMediaVideosItemType];
+
+
+export const APIMastodonStatusMediaVideosItemType = {
+  video: 'video',
+  gif: 'gif',
+} as const;
+export type APIMastodonStatusMediaVideosItemFormatsItemContainer = typeof APIMastodonStatusMediaVideosItemFormatsItemContainer[keyof typeof APIMastodonStatusMediaVideosItemFormatsItemContainer];
+
+
+export const APIMastodonStatusMediaVideosItemFormatsItemContainer = {
+  mp4: 'mp4',
+  webm: 'webm',
+  m3u8: 'm3u8',
+} as const;
+export type APIMastodonStatusMediaVideosItemFormatsItemCodec = typeof APIMastodonStatusMediaVideosItemFormatsItemCodec[keyof typeof APIMastodonStatusMediaVideosItemFormatsItemCodec];
+
+
+export const APIMastodonStatusMediaVideosItemFormatsItemCodec = {
+  h264: 'h264',
+  hevc: 'hevc',
+  vp9: 'vp9',
+  av1: 'av1',
+} as const;
+export type APIMastodonStatusMediaVideosItemFormatsItem = {
+  container?: APIMastodonStatusMediaVideosItemFormatsItemContainer;
+  codec?: APIMastodonStatusMediaVideosItemFormatsItemCodec;
+  bitrate?: number;
+  url: string;
+  size?: number;
+  height?: number;
+  width?: number;
+};
+export type APIMastodonStatusMediaVideosItem = {
+  id?: string;
+  format?: string;
+  type: APIMastodonStatusMediaVideosItemType;
+  url: string;
+  width: number;
+  height: number;
+  /** @nullable */
+  thumbnail_url?: string | null;
+  /** @nullable */
+  transcode_url?: string | null;
+  duration: number;
+  filesize?: number;
+  formats: APIMastodonStatusMediaVideosItemFormatsItem[];
+  publisher?: APIUser & (unknown | null);
+};
+export type APIMastodonStatusMediaAllItem = {
+  id?: string;
+  format?: string;
+  type: 'photo' | 'gif';
+  url: string;
+  width: number;
+  height: number;
+  /** @nullable */
+  transcode_url?: string | null;
+  altText?: string;
+} | {
+  id?: string;
+  format?: string;
+  type: 'video' | 'gif';
+  url: string;
+  width: number;
+  height: number;
+  /** @nullable */
+  thumbnail_url?: string | null;
+  /** @nullable */
+  transcode_url?: string | null;
+  duration: number;
+  filesize?: number;
+  formats: ({
+  container?: 'mp4' | 'webm' | 'm3u8';
+  codec?: 'h264' | 'hevc' | 'vp9' | 'av1';
+  bitrate?: number;
+  url: string;
+  size?: number;
+  height?: number;
+  width?: number;
+})[];
+  publisher?: APIUser & (unknown | null);
+} | {
+  id?: string;
+  format?: string;
+  type: 'mosaic_photo';
+  url: string;
+  width: number;
+  height: number;
+  formats: {
+  webp: string;
+  jpeg: string;
+};
+} | {
+  id?: string;
+  format?: string;
+  type: string;
+  url: string;
+  width: number;
+  height: number;
+};
+export type APIMastodonStatusMediaMosaicType = typeof APIMastodonStatusMediaMosaicType[keyof typeof APIMastodonStatusMediaMosaicType];
+
+
+export const APIMastodonStatusMediaMosaicType = {
+  mosaic_photo: 'mosaic_photo',
+} as const;
+export type APIMastodonStatusMediaMosaicFormats = {
+  webp: string;
+  jpeg: string;
+};
+export type APIMastodonStatusMediaMosaic = {
+  id?: string;
+  format?: string;
+  type: APIMastodonStatusMediaMosaicType;
+  url: string;
+  width: number;
+  height: number;
+  formats: APIMastodonStatusMediaMosaicFormats;
+};
+export type APIMastodonStatusMediaBroadcastState = typeof APIMastodonStatusMediaBroadcastState[keyof typeof APIMastodonStatusMediaBroadcastState];
+
+
+export const APIMastodonStatusMediaBroadcastState = {
+  LIVE: 'LIVE',
+  ENDED: 'ENDED',
+} as const;
+export type APIMastodonStatusMediaBroadcastBroadcaster = {
+  username: string;
+  display_name: string;
+  id: string;
+};
+export type APIMastodonStatusMediaBroadcastStream = {
+  url: string;
+};
+export type APIMastodonStatusMediaBroadcastOrientation = typeof APIMastodonStatusMediaBroadcastOrientation[keyof typeof APIMastodonStatusMediaBroadcastOrientation];
+
+
+export const APIMastodonStatusMediaBroadcastOrientation = {
+  landscape: 'landscape',
+  portrait: 'portrait',
+} as const;
+export type APIMastodonStatusMediaBroadcastThumbnailOriginal = {
+  url: string;
+};
+export type APIMastodonStatusMediaBroadcastThumbnailSmall = {
+  url: string;
+};
+export type APIMastodonStatusMediaBroadcastThumbnailMedium = {
+  url: string;
+};
+export type APIMastodonStatusMediaBroadcastThumbnailLarge = {
+  url: string;
+};
+export type APIMastodonStatusMediaBroadcastThumbnailXLarge = {
+  url: string;
+};
+export type APIMastodonStatusMediaBroadcastThumbnail = {
+  original: APIMastodonStatusMediaBroadcastThumbnailOriginal;
+  small?: APIMastodonStatusMediaBroadcastThumbnailSmall;
+  medium?: APIMastodonStatusMediaBroadcastThumbnailMedium;
+  large?: APIMastodonStatusMediaBroadcastThumbnailLarge;
+  x_large?: APIMastodonStatusMediaBroadcastThumbnailXLarge;
+};
+export type APIMastodonStatusMediaBroadcast = {
+  url: string;
+  width: number;
+  height: number;
+  state: APIMastodonStatusMediaBroadcastState;
+  broadcaster: APIMastodonStatusMediaBroadcastBroadcaster;
+  stream?: APIMastodonStatusMediaBroadcastStream;
+  title: string;
+  source: string;
+  orientation: APIMastodonStatusMediaBroadcastOrientation;
+  broadcast_id: string;
+  media_id: string;
+  media_key: string;
+  is_high_latency: boolean;
+  thumbnail: APIMastodonStatusMediaBroadcastThumbnail;
+};
+export type APIMastodonStatusMedia = {
+  external?: APIMastodonStatusMediaExternal;
+  photos?: APIMastodonStatusMediaPhotosItem[];
+  videos?: APIMastodonStatusMediaVideosItem[];
+  all?: APIMastodonStatusMediaAllItem[];
+  mosaic?: APIMastodonStatusMediaMosaic;
+  broadcast?: APIMastodonStatusMediaBroadcast;
+};
+export type APIMastodonStatusRawTextFacetsItem = {
+  /** Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image) */
+  type: string;
+  /**
+     * Start and end UTF-16 indices
+     * @minItems 2
+     * @maxItems 2
+     */
+  indices: number[];
+  original?: string;
+  replacement?: string;
+  display?: string;
+  id?: string;
+};
+export type APIMastodonStatusRawText = {
+  text: string;
+  facets: APIMastodonStatusRawTextFacetsItem[];
+};
+export type APIMastodonStatusTranslation = {
+  text: string;
+  source_lang: string;
+  source_lang_en: string;
+  target_lang: string;
+  provider: string;
+};
+export type APIMastodonStatusEmbedCard = typeof APIMastodonStatusEmbedCard[keyof typeof APIMastodonStatusEmbedCard];
+
+
+export const APIMastodonStatusEmbedCard = {
+  tweet: 'tweet',
+  summary: 'summary',
+  summary_large_image: 'summary_large_image',
+  player: 'player',
+} as const;
+export type APIMastodonStatusProvider = typeof APIMastodonStatusProvider[keyof typeof APIMastodonStatusProvider];
+
+
+export const APIMastodonStatusProvider = {
+  mastodon: 'mastodon',
+} as const;
+
+export type APIMastodonStatus = {
+  /** Discriminator: single post/status (API v2). */
+  type: APIMastodonStatusType;
+  id: string;
+  url: string;
+  text: string;
+  created_at: string;
+  created_timestamp: number;
+  likes: number;
+  reposts: number;
+  quotes?: number;
+  replies: number;
+  quote?: APIMastodonStatus | APIStatusTombstone;
+  poll?: APIMastodonStatusPoll;
+  author: APIUser;
+  media: APIMastodonStatusMedia;
+  raw_text: APIMastodonStatusRawText;
+  /** @nullable */
+  lang: string | null;
+  translation?: APIMastodonStatusTranslation;
+  possibly_sensitive: boolean;
+  replying_to: APIReplyingTo | null;
+  /** @nullable */
+  source: string | null;
+  embed_card: APIMastodonStatusEmbedCard;
+  provider: APIMastodonStatusProvider;
+  reposted_by?: APIRepostedBy | null;
+};
+
+export const APIMastodonStatus: zod.ZodType<APIMastodonStatus> = zod.object({
   "type": zod.enum(['status']).describe('Discriminator: single post\/status (API v2).'),
   "id": zod.string(),
   "url": zod.string(),
@@ -49,83 +336,7 @@ export const APIMastodonStatus = zod.object({
   "reposts": zod.number(),
   "quotes": zod.number().optional(),
   "replies": zod.number(),
-  "quote": zod.union([zod.object({
-  "type": zod.enum(['status']).describe('Discriminator: single post\/status (API v2).'),
-  "id": zod.string(),
-  "url": zod.string(),
-  "text": zod.string(),
-  "created_at": zod.string(),
-  "created_timestamp": zod.number(),
-  "likes": zod.number(),
-  "reposts": zod.number(),
-  "quotes": zod.number().optional(),
-  "replies": zod.number(),
-  "quote": zod.union([zod.unknown(),zod.object({
-  "type": zod.enum(['tombstone']).describe('Placeholder for an unavailable post (quote\/thread).'),
-  "provider": zod.enum(['twitter', 'bluesky', 'mastodon', 'tiktok', 'instagram', 'threads']),
-  "reason": zod.enum(['deleted', 'suspended', 'private', 'blocked', 'unavailable']).describe('Why the post is unavailable'),
-  "message": zod.string(),
-  "id": zod.string().optional(),
-  "url": zod.string().optional(),
-  "author": zod.object({
-  "type": zod.enum(['profile']).optional().describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string().optional(),
-  "name": zod.string().optional(),
-  "screen_name": zod.string().optional(),
-  "avatar_url": zod.string().nullish(),
-  "banner_url": zod.string().nullish(),
-  "description": zod.string().optional(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIMastodonStatusQuoteOneQuoteTwoAuthorRawDescriptionFacetsItemIndicesMin).max(aPIMastodonStatusQuoteOneQuoteTwoAuthorRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}).optional(),
-  "location": zod.string().optional(),
-  "url": zod.string().optional(),
-  "protected": zod.boolean().optional(),
-  "followers": zod.number().optional(),
-  "following": zod.number().optional(),
-  "statuses": zod.number().optional(),
-  "media_count": zod.number().optional(),
-  "likes": zod.number().optional(),
-  "joined": zod.string().optional(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullish(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).optional(),
-  "at_uri": zod.string().optional(),
-  "cid": zod.string().optional()
-})]).optional(),
+  "quote": zod.union([zod.lazy(() => APIMastodonStatus),APIStatusTombstone]).optional(),
   "poll": zod.object({
   "choices": zod.array(zod.object({
   "label": zod.string(),
@@ -136,62 +347,7 @@ export const APIMastodonStatus = zod.object({
   "ends_at": zod.string(),
   "time_left_en": zod.string()
 }).optional(),
-  "author": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIMastodonStatusQuoteOneAuthorRawDescriptionFacetsItemIndicesMin).max(aPIMastodonStatusQuoteOneAuthorRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}),
+  "author": APIUser,
   "media": zod.object({
   "external": zod.object({
   "type": zod.enum(['video']),
@@ -230,62 +386,7 @@ export const APIMastodonStatus = zod.object({
   "height": zod.number().optional(),
   "width": zod.number().optional()
 })),
-  "publisher": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIMastodonStatusQuoteOneMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMin).max(aPIMastodonStatusQuoteOneMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).and(zod.unknown().nullable()).optional()
+  "publisher": APIUser.and(zod.unknown().nullable()).optional()
 })).optional(),
   "all": zod.array(zod.union([zod.object({
   "id": zod.string().optional(),
@@ -316,481 +417,7 @@ export const APIMastodonStatus = zod.object({
   "height": zod.number().optional(),
   "width": zod.number().optional()
 })),
-  "publisher": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIMastodonStatusQuoteOneMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMin).max(aPIMastodonStatusQuoteOneMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).and(zod.unknown().nullable()).optional()
-}),zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['mosaic_photo']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "formats": zod.object({
-  "webp": zod.string(),
-  "jpeg": zod.string()
-})
-}),zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.string(),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number()
-})])).optional(),
-  "mosaic": zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['mosaic_photo']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "formats": zod.object({
-  "webp": zod.string(),
-  "jpeg": zod.string()
-})
-}).optional(),
-  "broadcast": zod.object({
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "state": zod.enum(['LIVE', 'ENDED']),
-  "broadcaster": zod.object({
-  "username": zod.string(),
-  "display_name": zod.string(),
-  "id": zod.string()
-}),
-  "stream": zod.object({
-  "url": zod.string()
-}).optional(),
-  "title": zod.string(),
-  "source": zod.string(),
-  "orientation": zod.enum(['landscape', 'portrait']),
-  "broadcast_id": zod.string(),
-  "media_id": zod.string(),
-  "media_key": zod.string(),
-  "is_high_latency": zod.boolean(),
-  "thumbnail": zod.object({
-  "original": zod.object({
-  "url": zod.string()
-}),
-  "small": zod.object({
-  "url": zod.string()
-}).optional(),
-  "medium": zod.object({
-  "url": zod.string()
-}).optional(),
-  "large": zod.object({
-  "url": zod.string()
-}).optional(),
-  "x_large": zod.object({
-  "url": zod.string()
-}).optional()
-})
-}).optional()
-}),
-  "raw_text": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIMastodonStatusQuoteOneRawTextFacetsItemIndicesMin).max(aPIMastodonStatusQuoteOneRawTextFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "lang": zod.string().nullable(),
-  "translation": zod.object({
-  "text": zod.string(),
-  "source_lang": zod.string(),
-  "source_lang_en": zod.string(),
-  "target_lang": zod.string(),
-  "provider": zod.string()
-}).optional(),
-  "possibly_sensitive": zod.boolean(),
-  "replying_to": zod.object({
-  "screen_name": zod.string().describe('Handle or account id used in permalinks (@user on X).'),
-  "status": zod.string().describe('Parent post id (X: snowflake; Bluesky: record key).'),
-  "url": zod.string().optional().describe('Permalink to the parent post when known.'),
-  "profile_url": zod.string().optional().describe('Permalink to the parent author profile when known.'),
-  "display_name": zod.string().optional().describe('Display name of the parent author when known.')
-}).nullable(),
-  "source": zod.string().nullable(),
-  "embed_card": zod.enum(['tweet', 'summary', 'summary_large_image', 'player']),
-  "provider": zod.enum(['mastodon']),
-  "reposted_by": zod.object({
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullish(),
-  "url": zod.string().optional()
-}).nullish()
-}),zod.object({
-  "type": zod.enum(['tombstone']).describe('Placeholder for an unavailable post (quote\/thread).'),
-  "provider": zod.enum(['twitter', 'bluesky', 'mastodon', 'tiktok', 'instagram', 'threads']),
-  "reason": zod.enum(['deleted', 'suspended', 'private', 'blocked', 'unavailable']).describe('Why the post is unavailable'),
-  "message": zod.string(),
-  "id": zod.string().optional(),
-  "url": zod.string().optional(),
-  "author": zod.object({
-  "type": zod.enum(['profile']).optional().describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string().optional(),
-  "name": zod.string().optional(),
-  "screen_name": zod.string().optional(),
-  "avatar_url": zod.string().nullish(),
-  "banner_url": zod.string().nullish(),
-  "description": zod.string().optional(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIMastodonStatusQuoteTwoAuthorRawDescriptionFacetsItemIndicesMin).max(aPIMastodonStatusQuoteTwoAuthorRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}).optional(),
-  "location": zod.string().optional(),
-  "url": zod.string().optional(),
-  "protected": zod.boolean().optional(),
-  "followers": zod.number().optional(),
-  "following": zod.number().optional(),
-  "statuses": zod.number().optional(),
-  "media_count": zod.number().optional(),
-  "likes": zod.number().optional(),
-  "joined": zod.string().optional(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullish(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).optional(),
-  "at_uri": zod.string().optional(),
-  "cid": zod.string().optional()
-})]).optional(),
-  "poll": zod.object({
-  "choices": zod.array(zod.object({
-  "label": zod.string(),
-  "count": zod.number(),
-  "percentage": zod.number()
-})),
-  "total_votes": zod.number(),
-  "ends_at": zod.string(),
-  "time_left_en": zod.string()
-}).optional(),
-  "author": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIMastodonStatusAuthorRawDescriptionFacetsItemIndicesMin).max(aPIMastodonStatusAuthorRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}),
-  "media": zod.object({
-  "external": zod.object({
-  "type": zod.enum(['video']),
-  "url": zod.string(),
-  "thumbnail_url": zod.string().optional(),
-  "height": zod.number().optional(),
-  "width": zod.number().optional()
-}).optional(),
-  "photos": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['photo', 'gif']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "transcode_url": zod.string().nullish(),
-  "altText": zod.string().optional()
-})).optional(),
-  "videos": zod.array(zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['video', 'gif']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "thumbnail_url": zod.string().nullish(),
-  "transcode_url": zod.string().nullish(),
-  "duration": zod.number(),
-  "filesize": zod.number().optional(),
-  "formats": zod.array(zod.object({
-  "container": zod.enum(['mp4', 'webm', 'm3u8']).optional(),
-  "codec": zod.enum(['h264', 'hevc', 'vp9', 'av1']).optional(),
-  "bitrate": zod.number().optional(),
-  "url": zod.string(),
-  "size": zod.number().optional(),
-  "height": zod.number().optional(),
-  "width": zod.number().optional()
-})),
-  "publisher": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIMastodonStatusMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMin).max(aPIMastodonStatusMediaVideosItemPublisherOneRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).and(zod.unknown().nullable()).optional()
-})).optional(),
-  "all": zod.array(zod.union([zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['photo', 'gif']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "transcode_url": zod.string().nullish(),
-  "altText": zod.string().optional()
-}),zod.object({
-  "id": zod.string().optional(),
-  "format": zod.string().optional(),
-  "type": zod.enum(['video', 'gif']),
-  "url": zod.string(),
-  "width": zod.number(),
-  "height": zod.number(),
-  "thumbnail_url": zod.string().nullish(),
-  "transcode_url": zod.string().nullish(),
-  "duration": zod.number(),
-  "filesize": zod.number().optional(),
-  "formats": zod.array(zod.object({
-  "container": zod.enum(['mp4', 'webm', 'm3u8']).optional(),
-  "codec": zod.enum(['h264', 'hevc', 'vp9', 'av1']).optional(),
-  "bitrate": zod.number().optional(),
-  "url": zod.string(),
-  "size": zod.number().optional(),
-  "height": zod.number().optional(),
-  "width": zod.number().optional()
-})),
-  "publisher": zod.object({
-  "type": zod.enum(['profile']).describe('Discriminator: full user profile (API v2).'),
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullable(),
-  "banner_url": zod.string().nullable(),
-  "description": zod.string(),
-  "raw_description": zod.object({
-  "text": zod.string(),
-  "facets": zod.array(zod.object({
-  "type": zod.string().describe('Facet kind: e.g. url, mention, hashtag, bold, media, custom_emoji (Mastodon custom emoji image)'),
-  "indices": zod.array(zod.number()).min(aPIMastodonStatusMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMin).max(aPIMastodonStatusMediaAllItemTwoPublisherOneRawDescriptionFacetsItemIndicesMax).describe('Start and end UTF-16 indices'),
-  "original": zod.string().optional(),
-  "replacement": zod.string().optional(),
-  "display": zod.string().optional(),
-  "id": zod.string().optional()
-}))
-}),
-  "location": zod.string(),
-  "url": zod.string(),
-  "protected": zod.boolean(),
-  "followers": zod.number(),
-  "following": zod.number(),
-  "statuses": zod.number(),
-  "media_count": zod.number(),
-  "likes": zod.number(),
-  "joined": zod.string(),
-  "website": zod.object({
-  "url": zod.string(),
-  "display_url": zod.string()
-}).nullable(),
-  "birthday": zod.object({
-  "day": zod.number().optional(),
-  "month": zod.number().optional(),
-  "year": zod.number().optional()
-}).nullish(),
-  "verification": zod.object({
-  "verified": zod.boolean(),
-  "type": zod.union([zod.literal('organization'),zod.literal('government'),zod.literal('individual'),zod.literal(null)]).nullable(),
-  "verified_at": zod.string().nullish(),
-  "identity_verified": zod.boolean().optional(),
-  "verified_by": zod.string().optional()
-}).optional(),
-  "about_account": zod.object({
-  "based_in": zod.string().nullish(),
-  "location_accurate": zod.boolean().optional(),
-  "created_country_accurate": zod.boolean().nullish(),
-  "source": zod.string().nullish(),
-  "username_changes": zod.object({
-  "count": zod.number(),
-  "last_changed_at": zod.string().nullable()
-}).optional()
-}).optional(),
-  "profile_embed": zod.boolean().optional()
-}).and(zod.unknown().nullable()).optional()
+  "publisher": APIUser.and(zod.unknown().nullable()).optional()
 }),zod.object({
   "id": zod.string().optional(),
   "format": zod.string().optional(),
@@ -881,24 +508,11 @@ export const APIMastodonStatus = zod.object({
   "provider": zod.string()
 }).optional(),
   "possibly_sensitive": zod.boolean(),
-  "replying_to": zod.object({
-  "screen_name": zod.string().describe('Handle or account id used in permalinks (@user on X).'),
-  "status": zod.string().describe('Parent post id (X: snowflake; Bluesky: record key).'),
-  "url": zod.string().optional().describe('Permalink to the parent post when known.'),
-  "profile_url": zod.string().optional().describe('Permalink to the parent author profile when known.'),
-  "display_name": zod.string().optional().describe('Display name of the parent author when known.')
-}).nullable(),
+  "replying_to": APIReplyingTo,
   "source": zod.string().nullable(),
   "embed_card": zod.enum(['tweet', 'summary', 'summary_large_image', 'player']),
   "provider": zod.enum(['mastodon']),
-  "reposted_by": zod.object({
-  "id": zod.string(),
-  "name": zod.string(),
-  "screen_name": zod.string(),
-  "avatar_url": zod.string().nullish(),
-  "url": zod.string().optional()
-}).nullish()
-})
+  "reposted_by": APIRepostedBy.optional()
+});
 
-export type APIMastodonStatus = zod.input<typeof APIMastodonStatus>;
 export type APIMastodonStatusOutput = zod.output<typeof APIMastodonStatus>;

@@ -1,3 +1,4 @@
+import { HttpResponseError } from "@/infrastructure/http/orvalFetch";
 import logger from "@/utils/logger";
 
 import { getPostInformation } from "./generated/default";
@@ -17,7 +18,7 @@ export class VxTwitterServerError extends Error {
 export class VxTwitterApi {
   /**
    * VxTwitter API からツイート情報を取得し、Zod で検証して返す。
-   * 404 は undefined、500 は VxTwitterServerError をスロー（フォールバック用）、
+   * 404 は undefined、5xx は VxTwitterServerError をスロー（フォールバック用）、
    * 検証失敗はログ出力の上 undefined を返す。
    */
   async getPostInformation(url: string): Promise<VxTwitter | undefined> {
@@ -31,23 +32,10 @@ export class VxTwitterApi {
     }
 
     try {
-      const response = await getPostInformation(params.screenName, params.tweetId);
+      const data = await getPostInformation(params.screenName, params.tweetId);
       const duration = Date.now() - startTime;
 
-      if (response.status === 500) {
-        logger.warn("VxTwitterApi: Server error (500), fallback will be attempted", {
-          url,
-          duration: `${duration}ms`,
-        });
-        throw new VxTwitterServerError(response.status, `VxTwitter API returned 500 error for ${url}`);
-      }
-
-      if (response.status === 404) {
-        logger.debug("VxTwitterApi: Tweet not found (404)", { url, duration: `${duration}ms` });
-        return undefined;
-      }
-
-      const parsed = VxTwitterStatus.safeParse(response.data);
+      const parsed = VxTwitterStatus.safeParse(data);
       if (!parsed.success) {
         logger.error("VxTwitterApi: Response validation failed", {
           url,
@@ -59,19 +47,35 @@ export class VxTwitterApi {
 
       logger.info("VxTwitterApi: Request completed", {
         url,
-        statusCode: response.status,
+        statusCode: 200,
         duration: `${duration}ms`,
       });
       return parsed.data as VxTwitter;
     } catch (e) {
-      if (e instanceof VxTwitterServerError) {
-        throw e;
-      }
       const duration = Date.now() - startTime;
+
+      if (e instanceof HttpResponseError) {
+        if (e.status === 404) {
+          logger.debug("VxTwitterApi: Tweet not found (404)", { url, duration: `${duration}ms` });
+          return undefined;
+        }
+
+        if (e.status >= 500 && e.status <= 599) {
+          logger.warn("VxTwitterApi: Server error, fallback will be attempted", {
+            url,
+            status: e.status,
+            duration: `${duration}ms`,
+          });
+          throw new VxTwitterServerError(e.status, `VxTwitter API returned ${e.status} error for ${url}`);
+        }
+      }
+
       if (process.env.NODE_ENV !== "test") {
         logger.error("VxTwitterApi: API request failed", {
           url,
+          status: e instanceof HttpResponseError ? e.status : undefined,
           message: e instanceof Error ? e.message : String(e),
+          stack: e instanceof Error ? e.stack : undefined,
           duration: `${duration}ms`,
         });
       }

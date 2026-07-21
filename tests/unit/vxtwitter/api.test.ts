@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { HttpResponseError } from "@/infrastructure/http/orvalFetch";
 import { VxTwitterApi, VxTwitterServerError } from "@/vxtwitter/api";
 import { VxTwitterStatus } from "@/vxtwitter/generated/model";
 import type { VxTwitter } from "@/vxtwitter/vxtwitter";
@@ -51,7 +52,7 @@ describe("VxTwitterApi", () => {
   });
 
   it("正常なレスポンスを検証して返す", async () => {
-    mockGetPostInformation.mockResolvedValue({ data: validData, status: 200, headers: new Headers() } as never);
+    mockGetPostInformation.mockResolvedValue(validData as never);
 
     const result = await api.getPostInformation("https://x.com/user/status/123");
 
@@ -61,22 +62,35 @@ describe("VxTwitterApi", () => {
   });
 
   it("404 は undefined を返す", async () => {
-    mockGetPostInformation.mockResolvedValue({ data: {}, status: 404, headers: new Headers() } as never);
+    mockGetPostInformation.mockRejectedValue(new HttpResponseError(404, "Not Found", "https://api.vxtwitter.com"));
 
     const result = await api.getPostInformation("https://x.com/user/status/123");
 
     expect(result).toBeUndefined();
   });
 
-  it("500 は VxTwitterServerError をスローする", async () => {
-    mockGetPostInformation.mockResolvedValue({ data: {}, status: 500, headers: new Headers() } as never);
+  it.each([500, 502, 503, 599])("%i は VxTwitterServerError をスローする", async (status) => {
+    mockGetPostInformation.mockRejectedValue(
+      new HttpResponseError(status, "Server Error", "https://api.vxtwitter.com")
+    );
 
-    await expect(api.getPostInformation("https://x.com/user/status/123")).rejects.toThrow(VxTwitterServerError);
+    let thrown: unknown;
+    try {
+      await api.getPostInformation("https://x.com/user/status/123");
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(VxTwitterServerError);
+    expect(thrown).toMatchObject({
+      name: "VxTwitterServerError",
+      status,
+    });
   });
 
   it("検証に失敗したレスポンスは undefined を返す", async () => {
     vi.spyOn(VxTwitterStatus, "safeParse").mockReturnValue({ success: false, error: { issues: [] } } as never);
-    mockGetPostInformation.mockResolvedValue({ data: { likes: "not-a-number" }, status: 200, headers: new Headers() } as never);
+    mockGetPostInformation.mockResolvedValue({ likes: "not-a-number" } as never);
 
     const result = await api.getPostInformation("https://x.com/user/status/123");
 
@@ -92,6 +106,16 @@ describe("VxTwitterApi", () => {
 
   it("通信エラー時は undefined を返す", async () => {
     mockGetPostInformation.mockRejectedValue(new Error("network error"));
+
+    const result = await api.getPostInformation("https://x.com/user/status/123");
+
+    expect(result).toBeUndefined();
+  });
+
+  it("5xx 以外の HTTP エラーは undefined を返す", async () => {
+    mockGetPostInformation.mockRejectedValue(
+      new HttpResponseError(400, "Bad Request", "https://api.vxtwitter.com")
+    );
 
     const result = await api.getPostInformation("https://x.com/user/status/123");
 

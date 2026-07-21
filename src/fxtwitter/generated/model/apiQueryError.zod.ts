@@ -10,7 +10,7 @@ import { z as zod } from 'zod';
 export const ApiQueryError = zod.object({
   "code": zod.literal(400),
   "message": zod.string()
-})
+});
 
 export type ApiQueryError = zod.input<typeof ApiQueryError>;
 export type ApiQueryErrorOutput = zod.output<typeof ApiQueryError>;

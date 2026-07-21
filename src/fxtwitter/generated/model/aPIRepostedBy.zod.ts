@@ -13,7 +13,7 @@ export const APIRepostedBy = zod.object({
   "screen_name": zod.string(),
   "avatar_url": zod.string().nullish(),
   "url": zod.string().optional()
-}).nullable()
+}).nullable();
 
 export type APIRepostedBy = zod.input<typeof APIRepostedBy>;
 export type APIRepostedByOutput = zod.output<typeof APIRepostedBy>;

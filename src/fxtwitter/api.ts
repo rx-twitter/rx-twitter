@@ -1,3 +1,4 @@
+import { HttpResponseError } from "@/infrastructure/http/orvalFetch";
 import logger from "@/utils/logger";
 
 import { get2StatusId } from "./generated/default";
@@ -19,15 +20,10 @@ export class FxTwitterApi {
     }
 
     try {
-      const response = await get2StatusId(id);
+      const data = await get2StatusId(id);
       const duration = Date.now() - startTime;
 
-      if (response.status === 404) {
-        logger.debug("FxTwitterApi: Tweet not found (404)", { url, duration: `${duration}ms` });
-        return undefined;
-      }
-
-      const parsed = SocialThread.safeParse(response.data);
+      const parsed = SocialThread.safeParse(data);
       if (!parsed.success) {
         logger.error("FxTwitterApi: Response validation failed", {
           url,
@@ -39,16 +35,24 @@ export class FxTwitterApi {
 
       logger.info("FxTwitterApi: Request completed", {
         url,
-        statusCode: response.status,
+        statusCode: 200,
         duration: `${duration}ms`,
       });
       return parsed.data;
     } catch (e) {
       const duration = Date.now() - startTime;
+
+      if (e instanceof HttpResponseError && e.status === 404) {
+        logger.debug("FxTwitterApi: Tweet not found (404)", { url, duration: `${duration}ms` });
+        return undefined;
+      }
+
       if (process.env.NODE_ENV !== "test") {
         logger.error("FxTwitterApi: API request failed", {
           url,
+          status: e instanceof HttpResponseError ? e.status : undefined,
           message: e instanceof Error ? e.message : String(e),
+          stack: e instanceof Error ? e.stack : undefined,
           duration: `${duration}ms`,
         });
       }

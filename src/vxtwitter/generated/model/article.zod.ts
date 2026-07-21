@@ -12,7 +12,7 @@ export const Article = zod.object({
   "title": zod.string().optional(),
   "preview_text": zod.string().optional(),
   "image": zod.string().nullish()
-})
+});
 
 export type Article = zod.input<typeof Article>;
 export type ArticleOutput = zod.output<typeof Article>;
