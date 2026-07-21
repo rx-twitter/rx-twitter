@@ -49,13 +49,23 @@ paths:
                 $ref: "#/components/schemas/VxTwitterStatus"
         "404":
           description: ツイートが存在しない
-        "500":
+        "5XX":
           description: サーバーエラー
 
 components:
   schemas:
     VxTwitterStatus:
       type: object
+      required:
+        - date
+        - likes
+        - replies
+        - retweets
+        - text
+        - tweetURL
+        - user_name
+        - user_screen_name
+        - user_profile_image_url
       properties:
         date:
           type: string
@@ -143,6 +153,9 @@ components:
 
     MediaExtended:
       type: object
+      required:
+        - type
+        - url
       properties:
         altText:
           type: string
@@ -158,6 +171,7 @@ components:
             - image
             - video
             - gif
+            - animated_gif
         url:
           type: string
         duration_millis:
