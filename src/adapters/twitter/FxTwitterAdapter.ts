@@ -1,9 +1,8 @@
+import { BaseTwitterAdapter, ITwitterAdapter } from "@/adapters/twitter/BaseTwitterAdapter";
 import { Tweet, TweetMedia } from "@/core/models/Tweet";
 import { FxTwitterApi } from "@/fxtwitter/api";
-import { Tweet as FxTweet } from "@/fxtwitter/fxtwitter";
+import type { SocialThread, APITwitterStatus } from "@/fxtwitter/generated/model";
 import logger from "@/utils/logger";
-
-import { BaseTwitterAdapter, ITwitterAdapter } from "./BaseTwitterAdapter";
 
 /**
  * FxTwitter API アダプター
@@ -26,11 +25,11 @@ export class FxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
       const apiUrl = this.transformUrl(url);
       const response = await this.api.getPostInformation(apiUrl);
 
-      if (!response || !response.tweet) {
+      if (!response || !response.status || !isTwitterStatus(response.status)) {
         return undefined;
       }
 
-      return this.convertToTweet(response.tweet);
+      return this.convertToTweet(response.status);
     } catch (error) {
       logger.error("FxTwitterAdapter: Failed to fetch tweet", {
         error: error instanceof Error ? error.message : String(error),
@@ -39,12 +38,12 @@ export class FxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
     }
   }
 
-  protected convertToTweet(data: unknown, depth: number = 0): Tweet | undefined {
-    const fxData = data as FxTweet;
+  protected convertToTweet(data: APITwitterStatus, depth: number = 0): Tweet | undefined {
+    const fxData = data;
 
     // 引用ツイートの変換（1階層まで）
     let quote: Tweet | undefined;
-    if (fxData.quote && depth < 1) {
+    if (fxData.quote && isTwitterStatus(fxData.quote) && depth < 1) {
       quote = this.convertToTweet(fxData.quote, depth + 1);
     }
 
@@ -52,10 +51,11 @@ export class FxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
     const media: TweetMedia[] = [];
     if (fxData.media?.all) {
       for (const item of fxData.media.all) {
+        const thumbnail = "thumbnail_url" in item ? item.thumbnail_url : undefined;
         media.push({
           url: item.url,
-          thumbnailUrl: item.thumbnail_url || item.url,
-          type: item.type === "video" || item.type === "animated_gif" ? "video" : "photo",
+          thumbnailUrl: thumbnail || item.url,
+          type: item.type === "video" || item.type === "gif" ? "video" : "photo",
         });
       }
     } else if (fxData.media) {
@@ -72,25 +72,27 @@ export class FxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
       for (const video of videos) {
         media.push({
           url: video.url,
-          thumbnailUrl: video.thumbnail_url,
+          thumbnailUrl: video.thumbnail_url || video.url,
           type: "video",
         });
       }
     }
 
+    const author = fxData.author;
     return {
       url: fxData.url,
-      author: this.createAuthor(
-        fxData.author.id,
-        fxData.author.name,
-        fxData.author.screen_name,
-        fxData.author.avatar_url
-      ),
+      author: this.createAuthor(author.screen_name, author.name, author.screen_name, author.avatar_url ?? ""),
       text: fxData.text,
-      metrics: this.createMetrics(fxData.replies, fxData.likes, fxData.retweets),
+      metrics: this.createMetrics(fxData.replies, fxData.likes, fxData.reposts),
       media,
       quote,
       timestamp: new Date(fxData.created_at),
     };
   }
+}
+
+type TwitterStatusData = APITwitterStatus;
+
+function isTwitterStatus(status: SocialThread["status"]): status is TwitterStatusData {
+  return !!status && typeof status === "object" && "type" in status && status.type === "status";
 }
