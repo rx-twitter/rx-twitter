@@ -4,6 +4,14 @@
   "extends": ["config:best-practices"],
   "minimumReleaseAge": "7 days",
   "postUpdateOptions": ["npmDedupe"],
+  "packageRules": [
+    {
+      "description": "ロックファイル更新の公開後待機チェックを無効化",
+      "matchDatasources": ["npm"],
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "minimumReleaseAge": null
+    }
+  ],
   "hostRules": [
     {
       "matchHost": "github.com",
