@@ -2,55 +2,26 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mediaUrl } from "../../../fixtures/testMediaUrl";
 
 import type { FxTwitterApi } from "@/fxtwitter/api";
-import type {
-  FXTwitter,
-  Tweet as FxTweet,
-  Author,
-  Media,
-  MediaItem,
-  Photo,
-  Video,
-} from "@/fxtwitter/fxtwitter";
+import type { SocialThread, APITwitterStatus, APIUser, APITwitterStatusMedia } from "@/fxtwitter/generated/model";
 import { FxTwitterAdapter } from "@/adapters/twitter/FxTwitterAdapter";
 
 vi.mock("@/utils/logger", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
 }));
 
-const createFxAuthor = (overrides: Partial<Author> = {}): Author => ({
+type TwitterStatus = Extract<SocialThread["status"], { type: "status" }>;
+
+const createFxAuthor = (overrides: Partial<APIUser> = {}): APIUser => ({
+  type: "profile",
   id: "test_user",
   name: "Test User",
   screen_name: "test_user",
   avatar_url: mediaUrl("icon.jpg"),
-  avatar_color: "#000000",
   banner_url: mediaUrl("banner.jpg"),
   ...overrides,
 });
 
-const createFxTweet = (overrides: Partial<FxTweet> = {}): FxTweet => ({
-  url: "https://x.com/test_user/status/123456789",
-  id: "123456789",
-  text: "This is a test tweet",
-  author: createFxAuthor(),
-  replies: 10,
-  retweets: 50,
-  likes: 100,
-  color: "#000000",
-  twitter_card: "summary",
-  created_at: "2024-01-01T00:00:00.000Z",
-  created_timestamp: 1704067200,
-  possibly_sensitive: false,
-  views: 1000,
-  lang: "ja",
-  replying_to: "",
-  replying_to_status: "",
-  media: undefined,
-  source: "",
-  quote: undefined,
-  ...overrides,
-});
-
-const createFxMediaItem = (overrides: Partial<MediaItem> = {}): MediaItem => ({
+const createFxMediaItem = (overrides: Partial<APITwitterStatusMedia["all"] extends (infer T)[] | undefined ? T : never> = {}): NonNullable<APITwitterStatusMedia["all"]>[number] => ({
   type: "photo",
   id: "12345",
   url: mediaUrl("photo.jpg"),
@@ -59,24 +30,32 @@ const createFxMediaItem = (overrides: Partial<MediaItem> = {}): MediaItem => ({
   ...overrides,
 });
 
-const createFxMedia = (items: MediaItem[] = []): Media => ({
-  all: items,
-  photos: items.filter((m) => m.type === "photo") as Photo[],
-  videos: items.filter((m) => m.type === "video") as Video[],
+const createFxStatus = (overrides: Partial<APITwitterStatus> = {}): TwitterStatus => ({
+  type: "status",
+  id: "123456789",
+  url: "https://x.com/test_user/status/123456789",
+  text: "This is a test tweet",
+  created_at: "2024-01-01T00:00:00.000Z",
+  created_timestamp: 1704067200,
+  likes: 100,
+  reposts: 50,
+  replies: 10,
+  author: createFxAuthor(),
+  ...overrides,
 });
 
 /**
  * media.all を含まない Media オブジェクトを作る（古いAPIレスポンスの模倣）
  */
 const createFxMediaWithoutAll = (
-  photos: Photo[] = [],
-  videos: Video[] = [],
-): Media => ({
+  photos: NonNullable<APITwitterStatusMedia["photos"]> = [],
+  videos: NonNullable<APITwitterStatusMedia["videos"]> = [],
+): APITwitterStatusMedia => ({
   photos,
   videos,
 });
 
-const createFxPhoto = (overrides: Partial<Photo> = {}): Photo => ({
+const createFxPhoto = (overrides: Partial<NonNullable<APITwitterStatusMedia["photos"]>[number]> = {}): NonNullable<APITwitterStatusMedia["photos"]>[number] => ({
   type: "photo",
   id: "12345",
   url: mediaUrl("photo.jpg"),
@@ -85,22 +64,21 @@ const createFxPhoto = (overrides: Partial<Photo> = {}): Photo => ({
   ...overrides,
 });
 
-const createFxVideo = (overrides: Partial<Video> = {}): Video => ({
+const createFxVideo = (overrides: Partial<NonNullable<APITwitterStatusMedia["videos"]>[number]> = {}): NonNullable<APITwitterStatusMedia["videos"]>[number] => ({
   id: "67890",
   url: mediaUrl("video.mp4"),
   thumbnail_url: mediaUrl("thumb.jpg"),
-  duration: 30,
+  type: "video",
   width: 1920,
   height: 1080,
-  format: "mp4",
-  type: "video",
+  duration: 30,
+  formats: [],
   ...overrides,
 });
 
-const createFxResponse = (tweet: FxTweet): FXTwitter => ({
+const createFxResponse = (status: TwitterStatus): SocialThread => ({
   code: 200,
-  message: "OK",
-  tweet,
+  status,
 });
 
 // ---------------------------------------------------------------------------
@@ -110,7 +88,7 @@ const createFxResponse = (tweet: FxTweet): FXTwitter => ({
 interface FxMediaPattern {
   name: string;
   /** メディアオブジェクト（undefined で media フィールド自体なし） */
-  media: Media | undefined;
+  media: APITwitterStatusMedia | undefined;
   /** 期待される media 配列 */
   expected: { count: number; types: string[] };
 }
@@ -119,12 +97,12 @@ interface FxMediaPattern {
  * type 文字列から TweetMedia.type へのマッピング
  */
 function fxTypeToTweetType(type: string): "photo" | "video" {
-  return type === "video" || type === "animated_gif" ? "video" : "photo";
+  return type === "video" || type === "gif" ? "video" : "photo";
 }
 
-function createMediaItemForType(type: string, idx: number): MediaItem {
+function createMediaItemForType(type: string, idx: number): NonNullable<APITwitterStatusMedia["all"]>[number] {
   const isVideo = type === "video";
-  const isGif = type === "animated_gif";
+  const isGif = type === "gif";
   return {
     type,
     id: `${idx}`,
@@ -136,7 +114,7 @@ function createMediaItemForType(type: string, idx: number): MediaItem {
     ...(isVideo || isGif ? { thumbnail_url: mediaUrl(`thumb_${idx}.jpg`) } : {}),
     width: 1920,
     height: 1080,
-  };
+  } as NonNullable<APITwitterStatusMedia["all"]>[number];
 }
 
 function generateFxMediaPatterns(): FxMediaPattern[] {
@@ -149,11 +127,11 @@ function generateFxMediaPatterns(): FxMediaPattern[] {
     ["photo", "photo"], // 写真2枚
     ["video"],     // 動画1個
     ["video", "video"], // 動画2個
-    ["animated_gif"], // animated_gif
+    ["gif"],       // gif
     ["photo", "video"], // 写真 + 動画
-    ["photo", "animated_gif"], // 写真 + animated_gif
-    ["video", "animated_gif"], // 動画 + animated_gif
-    ["photo", "video", "animated_gif"], // 写真 + 動画 + gif
+    ["photo", "gif"],   // 写真 + gif
+    ["video", "gif"],   // 動画 + gif
+    ["photo", "video", "gif"], // 写真 + 動画 + gif
   ];
 
   for (const types of typeCombos) {
@@ -161,7 +139,7 @@ function generateFxMediaPatterns(): FxMediaPattern[] {
     const expectedTypes = types.map((t) => fxTypeToTweetType(t));
     patterns.push({
       name: `media.all: [${types.join(", ") || "empty"}]`,
-      media: createFxMedia(items),
+      media: { all: items, photos: [], videos: [] },
       expected: { count: types.length, types: expectedTypes },
     });
   }
@@ -178,14 +156,13 @@ function generateFxMediaPatterns(): FxMediaPattern[] {
     { photos: [], videos: ["video", "video"] },
     { photos: ["photo"], videos: ["video"] },
     { photos: ["photo", "photo"], videos: ["video"] },
-    { photos: [], videos: [] },
   ];
 
   for (const combo of fallbackCombos) {
-    const photos: Photo[] = combo.photos.map(
+    const photos = combo.photos.map(
       (type, i) => createFxPhoto({ url: mediaUrl(`fb_photo_${i}.jpg`), type }),
     );
-    const videos: Video[] = combo.videos.map(
+    const videos = combo.videos.map(
       (type, i) =>
         createFxVideo({
           url: mediaUrl(`fb_video_${i}.mp4`),
@@ -228,7 +205,7 @@ describe("FxTwitterAdapter", () => {
   describe("fetchTweet", () => {
     it("正常なレスポンスからTweetモデルを生成できる", async () => {
       mockApi.getPostInformation.mockResolvedValue(
-        createFxResponse(createFxTweet()),
+        createFxResponse(createFxStatus()),
       );
 
       const result = await adapter.fetchTweet(
@@ -246,7 +223,7 @@ describe("FxTwitterAdapter", () => {
 
     it("URL を fxtwitter 形式に変換してリクエストする", async () => {
       mockApi.getPostInformation.mockResolvedValue(
-        createFxResponse(createFxTweet()),
+        createFxResponse(createFxStatus()),
       );
 
       await adapter.fetchTweet("https://x.com/user/status/123");
@@ -258,7 +235,7 @@ describe("FxTwitterAdapter", () => {
 
     it("twitter.com の URL も変換できる", async () => {
       mockApi.getPostInformation.mockResolvedValue(
-        createFxResponse(createFxTweet()),
+        createFxResponse(createFxStatus()),
       );
 
       await adapter.fetchTweet("https://twitter.com/user/status/123");
@@ -269,10 +246,10 @@ describe("FxTwitterAdapter", () => {
     });
 
     it("画像メディアを含むツイートを変換できる", async () => {
-      const tweet = createFxTweet({
-        media: createFxMedia([createFxMediaItem()]),
+      const status = createFxStatus({
+        media: { all: [createFxMediaItem()], photos: [], videos: [] },
       });
-      mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
+      mockApi.getPostInformation.mockResolvedValue(createFxResponse(status));
 
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
 
@@ -283,13 +260,17 @@ describe("FxTwitterAdapter", () => {
     });
 
     it("複数の画像メディアを変換できる", async () => {
-      const tweet = createFxTweet({
-        media: createFxMedia([
-          createFxMediaItem({ url: mediaUrl("photo1.jpg") }),
-          createFxMediaItem({ url: mediaUrl("photo2.jpg") }),
-        ]),
+      const status = createFxStatus({
+        media: {
+          all: [
+            createFxMediaItem({ url: mediaUrl("photo1.jpg") }),
+            createFxMediaItem({ url: mediaUrl("photo2.jpg") }),
+          ],
+          photos: [],
+          videos: [],
+        },
       });
-      mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
+      mockApi.getPostInformation.mockResolvedValue(createFxResponse(status));
 
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
 
@@ -297,16 +278,20 @@ describe("FxTwitterAdapter", () => {
     });
 
     it("動画メディアを含むツイートを変換できる", async () => {
-      const tweet = createFxTweet({
-        media: createFxMedia([
-          createFxMediaItem({
-            type: "video",
-            url: mediaUrl("video.mp4"),
-            thumbnail_url: mediaUrl("thumb.jpg"),
-          }),
-        ]),
+      const status = createFxStatus({
+        media: {
+          all: [
+            createFxMediaItem({
+              type: "video",
+              url: mediaUrl("video.mp4"),
+              thumbnail_url: mediaUrl("thumb.jpg"),
+            }),
+          ],
+          photos: [],
+          videos: [],
+        },
       });
-      mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
+      mockApi.getPostInformation.mockResolvedValue(createFxResponse(status));
 
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
 
@@ -318,7 +303,7 @@ describe("FxTwitterAdapter", () => {
 
     it("メディアがない場合 media は空配列になる", async () => {
       mockApi.getPostInformation.mockResolvedValue(
-        createFxResponse(createFxTweet({ media: undefined })),
+        createFxResponse(createFxStatus({ media: undefined })),
       );
 
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
@@ -327,7 +312,7 @@ describe("FxTwitterAdapter", () => {
     });
 
     it("引用ツイートが含まれる場合 quote が設定される", async () => {
-      const quotedTweet = createFxTweet({
+      const quotedStatus = createFxStatus({
         url: "https://x.com/quoted_user/status/999",
         author: createFxAuthor({
           screen_name: "quoted_user",
@@ -335,8 +320,8 @@ describe("FxTwitterAdapter", () => {
         }),
         text: "Original tweet",
       });
-      const tweet = createFxTweet({ quote: quotedTweet, text: "Check this!" });
-      mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
+      const status = createFxStatus({ quote: quotedStatus, text: "Check this!" });
+      mockApi.getPostInformation.mockResolvedValue(createFxResponse(status));
 
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
 
@@ -346,13 +331,13 @@ describe("FxTwitterAdapter", () => {
     });
 
     it("quote が入れ子 2階層目は変換しない（depth 制限）", async () => {
-      const deepQuote = createFxTweet({ text: "deep nested" });
-      const quotedTweet = createFxTweet({
+      const deepQuote = createFxStatus({ text: "deep nested" });
+      const quotedStatus = createFxStatus({
         quote: deepQuote,
         text: "level 1 quote",
       });
-      const tweet = createFxTweet({ quote: quotedTweet });
-      mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
+      const status = createFxStatus({ quote: quotedStatus });
+      mockApi.getPostInformation.mockResolvedValue(createFxResponse(status));
 
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
 
@@ -368,12 +353,8 @@ describe("FxTwitterAdapter", () => {
       expect(result).toBeUndefined();
     });
 
-    it("レスポンスに tweet が含まれない場合 undefined を返す", async () => {
-      mockApi.getPostInformation.mockResolvedValue({
-        code: 404,
-        message: "Not Found",
-        tweet: null,
-      });
+    it("レスポンスに status が含まれない場合 undefined を返す", async () => {
+      mockApi.getPostInformation.mockResolvedValue({ code: 404 });
 
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
 
@@ -396,8 +377,8 @@ describe("FxTwitterAdapter", () => {
     it.each(FX_MEDIA_PATTERNS)(
       "$name",
       async ({ media, expected }: FxMediaPattern) => {
-        const tweet = createFxTweet({ media });
-        mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
+        const status = createFxStatus({ media });
+        mockApi.getPostInformation.mockResolvedValue(createFxResponse(status));
 
         const result = await adapter.fetchTweet(
           "https://x.com/user/status/123",
@@ -418,16 +399,18 @@ describe("FxTwitterAdapter", () => {
   // -----------------------------------------------------------------------
   describe("quote media conversion", () => {
     it("引用ツイートの media.all が正しく変換される", async () => {
-      const quotedTweet = createFxTweet({
+      const quotedStatus = createFxStatus({
         url: "https://x.com/quoted_user/status/999",
         author: createFxAuthor({ screen_name: "quoted_user" }),
         text: "Quoted tweet with media",
-        media: createFxMedia([
-          createFxMediaItem({ url: mediaUrl("qt_photo.jpg") }),
-        ]),
+        media: {
+          all: [createFxMediaItem({ url: mediaUrl("qt_photo.jpg") })],
+          photos: [],
+          videos: [],
+        },
       });
-      const tweet = createFxTweet({ quote: quotedTweet, text: "Check this!" });
-      mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
+      const status = createFxStatus({ quote: quotedStatus, text: "Check this!" });
+      mockApi.getPostInformation.mockResolvedValue(createFxResponse(status));
 
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
 
@@ -437,7 +420,7 @@ describe("FxTwitterAdapter", () => {
     });
 
     it("引用ツイートに media.all がない場合 photos からフォールバックする", async () => {
-      const quotedTweet = createFxTweet({
+      const quotedStatus = createFxStatus({
         url: "https://x.com/quoted_user/status/999",
         author: createFxAuthor({ screen_name: "quoted_user" }),
         text: "Quoted tweet",
@@ -446,8 +429,8 @@ describe("FxTwitterAdapter", () => {
           [],
         ),
       });
-      const tweet = createFxTweet({ quote: quotedTweet, text: "Check this!" });
-      mockApi.getPostInformation.mockResolvedValue(createFxResponse(tweet));
+      const status = createFxStatus({ quote: quotedStatus, text: "Check this!" });
+      mockApi.getPostInformation.mockResolvedValue(createFxResponse(status));
 
       const result = await adapter.fetchTweet("https://x.com/user/status/123");
 

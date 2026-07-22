@@ -126,7 +126,7 @@ VxTwitter (BetterTwitFix) は Flask ベースのサーバーで、Twitter の内
 | フィールド        | 型      | 説明                                            |
 | ----------------- | ------- | ----------------------------------------------- |
 | `url`             | string  | メディアの直接URL                               |
-| `type`            | string  | メディアタイプ: `"image"` / `"video"` / `"gif"` |
+| `type`            | string  | メディアタイプ: `"image"` / `"video"` / `"gif"` / `"animated_gif"` |
 | `size`            | object  | `{ width: number, height: number }`             |
 | `thumbnail_url`   | string? | サムネイルURL (画像の場合は url と同じ)         |
 | `altText`         | string? | 代替テキスト (ない場合は null)                  |
@@ -169,6 +169,6 @@ VxTwitter (BetterTwitFix) は Flask ベースのサーバーで、Twitter の内
 - `mediaURLs` は常に配列で返る（空配列の場合もある）。
 - `qrtURL` が存在する場合、そのURLを再度 VxTwitter API に投げると引用ツイートのデータが取得できる。
 - `allSameType` + `combinedMediaUrl` が利用可能な場合、Discord の埋め込み用に複数画像を1枚に結合したURLが提供される。
-- `type` フィールドは `"image"` / `"video"` / `"gif"` のいずれか。ただし `"animated_gif"` は内部的に `"video"` 相当だが、APIレスポンス上は `"gif"` となる場合がある。
+- `type` フィールドは `"image"` / `"video"` / `"gif"` / `"animated_gif"` のいずれか。`"animated_gif"` は Bot 内では `"video"` 相当として扱う。
 - 古いツイート (API v1.1 ベース) では `media_extended` の構造が異なる可能性がある（`size` が `[w, h]` 配列だった）。
 - テキストは最大 220 文字を超える場合 `note_tweet` (Twitter Blueの長文ツイート) の内容が使われる。

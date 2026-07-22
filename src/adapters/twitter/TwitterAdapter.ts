@@ -34,9 +34,9 @@ export class TwitterAdapter implements ITwitterAdapter {
       const fallbackResult = await this.fallbackAdapter.fetchTweet(url);
       return fallbackResult;
     } catch (error) {
-      // VxTwitterが500エラーを返した場合、フォールバックを試行
+      // VxTwitterが5xxエラーを返した場合、フォールバックを試行
       if (error instanceof VxTwitterServerError) {
-        logger.warn("VxTwitter returned 500 error, trying FxTwitter fallback", { status: error.status });
+        logger.warn("VxTwitter returned a server error, trying FxTwitter fallback", { status: error.status });
         const fallbackResult = await this.fallbackAdapter.fetchTweet(url);
         return fallbackResult;
       }

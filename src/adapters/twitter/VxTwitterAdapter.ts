@@ -1,9 +1,8 @@
+import { BaseTwitterAdapter, ITwitterAdapter } from "@/adapters/twitter/BaseTwitterAdapter";
 import { Tweet, TweetMedia } from "@/core/models/Tweet";
 import logger from "@/utils/logger";
 import { VxTwitterApi, VxTwitterServerError } from "@/vxtwitter/api";
-import { VxTwitter } from "@/vxtwitter/vxtwitter";
-
-import { BaseTwitterAdapter, ITwitterAdapter } from "./BaseTwitterAdapter";
+import type { VxTwitter } from "@/vxtwitter/vxtwitter";
 
 /**
  * VxTwitter API アダプター
@@ -32,7 +31,7 @@ export class VxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
 
       return this.convertToTweet(data);
     } catch (error) {
-      // 500エラーの場合は上位でフォールバック処理させるため再スロー
+      // 5xxエラーの場合は上位でフォールバック処理させるため再スロー
       if (error instanceof VxTwitterServerError) {
         logger.warn("VxTwitterAdapter: Server error, will try fallback", { status: error.status });
         throw error;
@@ -44,8 +43,8 @@ export class VxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
     }
   }
 
-  protected convertToTweet(data: unknown, depth: number = 0): Tweet | undefined {
-    const vxData = data as VxTwitter;
+  protected convertToTweet(data: VxTwitter, depth: number = 0): Tweet | undefined {
+    const vxData = data;
 
     // 引用ツイートの変換（1階層まで）
     let quote: Tweet | undefined;
@@ -59,7 +58,10 @@ export class VxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
         ? vxData.media_extended.map((extended) => ({
             url: extended.url,
             thumbnailUrl: extended.thumbnail_url || extended.url,
-            type: extended.type === "video" || extended.type === "animated_gif" ? "video" : "photo",
+            type:
+              extended.type === "video" || extended.type === "gif" || extended.type === "animated_gif"
+                ? "video"
+                : "photo",
           }))
         : vxData.mediaURLs && vxData.mediaURLs.length > 0
           ? vxData.mediaURLs.map((url) => ({
