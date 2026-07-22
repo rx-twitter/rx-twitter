@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.5.0](https://github.com/rx-twitter/rx-twitter/compare/v2.4.5...v2.5.0) (2026-07-22)
+
+
+### Features
+
+* OpenAPIスペックに必須フィールド・animated_gif・5XXレスポンスを反映 ([41e710d](https://github.com/rx-twitter/rx-twitter/commit/41e710d29415352a64c20139f8bb9f8743cd117f))
+* Orvalでfxtwitter/vxtwitterのZod検証付きfetchクライアントを生成 ([2f40d41](https://github.com/rx-twitter/rx-twitter/commit/2f40d418c4e0e2cabe6ea4b1f6fb1b5c9de7e3bf))
+* Orvalでfxtwitter/vxtwitterのZod検証付きfetchクライアントを生成 ([465b55a](https://github.com/rx-twitter/rx-twitter/commit/465b55a59ab1b10348da170c94c1396ae817ab8c))
+* Zod検証処理を導入 ([cc3182d](https://github.com/rx-twitter/rx-twitter/commit/cc3182df4b18d7aca8e9f6574d64a46eae64ee36))
+
+
+### Bug Fixes
+
+* APIレスポンス検証と生成DTO型の整合性を修正 ([09efa8e](https://github.com/rx-twitter/rx-twitter/commit/09efa8e0111d8e0e4dc1ba4c31244dcd6e0364fc))
+
 ## [2.4.5](https://github.com/rx-twitter/rx-twitter/compare/v2.4.4...v2.4.5) (2026-07-19)
 
 
