@@ -69,8 +69,8 @@
   "devDependencies": {
     "@types/js-yaml": "4.0.9",
     "@types/node": "24.13.2",
-    "@vitest/coverage-v8": "4.1.9",
-    "@vitest/ui": "4.1.9",
+    "@vitest/coverage-v8": "4.1.11",
+    "@vitest/ui": "4.1.11",
     "husky": "9.1.7",
     "lint-staged": "17.0.8",
     "orval": "8.22.0",
