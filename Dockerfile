@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:24-alpine3.23@sha256:595398b0081eacda8e1c4c5b97b76cd1020e4d58a8ebcb4843b9bca1e79e7436 AS builder
+FROM --platform=$BUILDPLATFORM node:24-alpine3.23@sha256:9b69af715c7f9d038150b54ccccbaeffa9064bbc93e2904c29591ca097316af1 AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN npm ci && \
 # 設定ファイルをコピー
 COPY ["./.config", "./.config"]
 
-FROM node:24-alpine3.23@sha256:595398b0081eacda8e1c4c5b97b76cd1020e4d58a8ebcb4843b9bca1e79e7436 AS runner
+FROM node:24-alpine3.23@sha256:9b69af715c7f9d038150b54ccccbaeffa9064bbc93e2904c29591ca097316af1 AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production \
