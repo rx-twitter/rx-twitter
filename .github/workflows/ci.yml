@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
@@ -36,7 +36,7 @@ jobs:
     needs: setup
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
@@ -73,7 +73,7 @@ jobs:
     needs: setup
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
@@ -114,7 +114,7 @@ jobs:
         run: npm run test:coverage
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f #v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ./coverage/coverage-final.json
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -135,7 +135,7 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
@@ -159,8 +159,13 @@ jobs:
       - name: Build shared package
         run: npm run build:shared
 
-      - name: Run announcement Streams integration tests
-        run: npx vitest run tests/integration/announcement-stream.test.ts
+      # tests/integration と tests/e2e のテストは全て明示フラグでゲートされて
+      # いるため、ディレクトリ指定でよい。RUN_REDIS_INTEGRATION だけを立てるので、
+      # 実 API を叩くテスト（RUN_LIVE_API_TESTS）は skipped のまま残る。
+      # ファイル名を列挙しないことで、テスト追加時に CI への追記を忘れても
+      # 実行対象から漏れない。
+      - name: Run Redis integration and E2E tests
+        run: npx vitest run tests/integration tests/e2e
         env:
           RUN_REDIS_INTEGRATION: "1"
           REDIS_URL: redis://localhost:6379
@@ -170,7 +175,7 @@ jobs:
     needs: test
 
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
@@ -201,3 +206,9 @@ jobs:
             exit 1
           fi
           echo "Build successful"
+
+      # エイリアスの宣言は tsconfig の paths（コンパイル時）と package.json の
+      # imports（実行時）に分かれている。片方だけ書き換えても型検査は通り、
+      # 本番起動で初めて ERR_MODULE_NOT_FOUND になる。成果物側で解決を検証する。
+      - name: Verify module resolution in build output
+        run: npm run verify:dist
