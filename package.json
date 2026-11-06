@@ -73,7 +73,7 @@
     "@vitest/ui": "4.1.12",
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
-    "orval": "8.45.0",
+    "orval": "8.46.0",
     "oxfmt": "0.75.0",
     "oxlint": "1.90.0",
     "ts-node": "10.9.2",
