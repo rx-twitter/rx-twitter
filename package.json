@@ -75,7 +75,7 @@
     "lint-staged": "17.0.8",
     "orval": "8.45.0",
     "oxfmt": "0.56.0",
-    "oxlint": "1.71.0",
+    "oxlint": "1.90.0",
     "ts-node": "10.9.2",
     "tsx": "4.23.15",
     "typescript": "6.0.3",
