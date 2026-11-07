@@ -65,7 +65,7 @@ npm run test:unit     # vitest（全ユニット）
 
 - 実 Redis が要る統合テストは `RUN_REDIS_INTEGRATION=1` のときだけ走る設計にする（未設定で skip → ローカル/CI で Redis 無しでも壊れない）。ローカル検証は Docker の使い捨て Redis で:
   ```bash
-  docker run -d --name twrx-test-redis -p 6390:6379 redis:8.2.2-alpine
+  docker run -d --name twrx-test-redis -p 6390:6379 redis:8.10.2-alpine
   RUN_REDIS_INTEGRATION=1 REDIS_URL=redis://127.0.0.1:6390 npx vitest run tests/integration/<x>.test.ts
   docker rm -f twrx-test-redis
   ```

@@ -64,7 +64,7 @@ services:
 
   redis:
     container_name: TwitterRX-Redis
-    image: redis:8.2.2-alpine
+    image: redis:8.10.2-alpine@sha256:9f8d2d789b9a1d1e3f283f979aa9cbf393373806472e1ccd460e2f9c869b833b
     restart: unless-stopped
     volumes:
       - redis_data:/data

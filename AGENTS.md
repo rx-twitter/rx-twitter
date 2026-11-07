@@ -189,7 +189,7 @@ scope は省略可能。description は日本語でも英語でもよいが、�
 - 実 Redis を要するテスト: `describe.skipIf(!RUN)` で `RUN_REDIS_INTEGRATION=1` のときだけ実行する。CI では `integration-redis` ジョブが Redis サービス付きで `tests/integration` をディレクトリ指定で実行する（`RUN_LIVE_API_TESTS` は立てないので実 API のテストは skipped のまま残る）。
 
   ```bash
-  docker run -d --rm --name twrx-test-redis -p 6390:6379 redis:8.2.2-alpine
+  docker run -d --rm --name twrx-test-redis -p 6390:6379 redis:8.10.2-alpine
   RUN_REDIS_INTEGRATION=1 REDIS_URL=redis://127.0.0.1:6390 \
     npx vitest run tests/integration/channel-config.test.ts
   docker rm -f twrx-test-redis
