@@ -46,7 +46,7 @@ stubTwitterApi({
 実 Redis が要るため `RUN_REDIS_INTEGRATION=1` のときだけ実行する。
 
 ```bash
-docker run -d --rm --name twrx-test-redis -p 6390:6379 redis:8.2.2-alpine
+docker run -d --rm --name twrx-test-redis -p 6390:6379 redis:8.10.2-alpine
 RUN_REDIS_INTEGRATION=1 REDIS_URL=redis://127.0.0.1:6390 npm run test:e2e
 docker rm -f twrx-test-redis
 ```
