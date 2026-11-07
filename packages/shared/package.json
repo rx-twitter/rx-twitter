@@ -29,6 +29,6 @@
   "author": "t1nyb0x",
   "license": "AGPL-3.0-or-later",
   "devDependencies": {
-    "typescript": "6.0.3"
+    "typescript": "7.0.2"
   }
 }
