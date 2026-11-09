@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.1.1](https://github.com/rx-twitter/rx-twitter/compare/v3.1.0...v3.1.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **ci:** deploy-gate が受け付ける形式で webhook を送る ([34adb6f](https://github.com/rx-twitter/rx-twitter/commit/34adb6f6c71fb3d5cb9ee16de633a1a96da480d4))
+* **ci:** deploy-gate が受け付ける形式で webhook を送る ([e0ac17a](https://github.com/rx-twitter/rx-twitter/commit/e0ac17ae495ae80933cb612727fb98b254266d49))
+
 ## [3.1.0](https://github.com/rx-twitter/rx-twitter/compare/v3.0.1...v3.1.0) (2026-08-13)
 
 
