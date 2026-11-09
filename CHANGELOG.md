@@ -1,5 +1,26 @@
 # Changelog
 
+## [3.1.1](https://github.com/rx-twitter/rx-twitter/compare/v3.1.0...v3.1.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **ci:** deploy-gate が受け付ける形式で webhook を送る ([34adb6f](https://github.com/rx-twitter/rx-twitter/commit/34adb6f6c71fb3d5cb9ee16de633a1a96da480d4))
+* **ci:** deploy-gate が受け付ける形式で webhook を送る ([e0ac17a](https://github.com/rx-twitter/rx-twitter/commit/e0ac17ae495ae80933cb612727fb98b254266d49))
+
+## [3.1.0](https://github.com/rx-twitter/rx-twitter/compare/v3.0.1...v3.1.0) (2026-08-13)
+
+
+### Features
+
+* **test:** Bot の主要フローを通す E2E テストを再導入する ([fc3fddd](https://github.com/rx-twitter/rx-twitter/commit/fc3fddd7ae1233ece026cea5cb1faa0ed4b984d2))
+
+
+### Bug Fixes
+
+* **ci:** verify:dist が imports の書き換えを検知できるようにする ([47a9d1b](https://github.com/rx-twitter/rx-twitter/commit/47a9d1b58bdf13489fae725d74a87142e252ce36))
+* **test:** カバレッジ計測から tests/ 配下を除外する ([1e260c7](https://github.com/rx-twitter/rx-twitter/commit/1e260c712537690ddca105b92f162a01bb3ed813))
+
 ## [3.0.1](https://github.com/rx-twitter/rx-twitter/compare/v3.0.0...v3.0.1) (2026-08-09)
 
 
