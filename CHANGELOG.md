@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.2](https://github.com/rx-twitter/rx-twitter/compare/v3.1.1...v3.1.2) (2026-11-09)
+
+
+### Bug Fixes
+
+* **deps:** update dependency chalk to v6 ([f9dc647](https://github.com/rx-twitter/rx-twitter/commit/f9dc6474483c492826f88f8cf3da147c9283f0c7))
+
 ## [3.1.1](https://github.com/rx-twitter/rx-twitter/compare/v3.1.0...v3.1.1) (2026-11-09)
 
 
