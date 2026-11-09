@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:24-alpine3.23@sha256:595398b0081eacda8e1c4c5b97b76cd1020e4d58a8ebcb4843b9bca1e79e7436 AS builder
+FROM --platform=$BUILDPLATFORM node:26-alpine3.23@sha256:44a3247313f9bc069a4ec25d01b66254ed7dc4d0408727d8720dc827f0753423 AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN npm ci && \
 # 設定ファイルをコピー
 COPY ["./.config", "./.config"]
 
-FROM node:24-alpine3.23@sha256:595398b0081eacda8e1c4c5b97b76cd1020e4d58a8ebcb4843b9bca1e79e7436 AS runner
+FROM node:26-alpine3.23@sha256:44a3247313f9bc069a4ec25d01b66254ed7dc4d0408727d8720dc827f0753423 AS runner
 
 WORKDIR /app
 ENV NODE_ENV=production \
@@ -41,6 +41,6 @@ COPY --from=builder /app/.config ./.config
 
 # ヘルスチェック（HEALTH_PORT=9090 で /healthz エンドポイントを確認）
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:9090/healthz || exit 1
+  CMD ["sh", "-c", "wget --no-verbose --tries=1 --spider http://127.0.0.1:9090/healthz || exit 1"]
 
 CMD ["npm", "run", "start:docker"]
