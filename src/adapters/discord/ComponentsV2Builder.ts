@@ -12,13 +12,20 @@ import {
 
 import type { Tweet } from "#/core/models/Tweet.js";
 
-import { buildTweetBody, formatPollOptions, truncate } from "./tweetText.js";
+import { buildTranslateCustomId } from "./translateCustomId.js";
+import { buildTweetBody, formatPollOptions, ownTweetText, truncate } from "./tweetText.js";
 
 /** Embed と同じアクセントカラーを引き継ぐ */
 const ACCENT_COLOR = 9016025;
 
 /** Container 全体のテキスト上限。Discord の制約に合わせる */
 const MAX_BODY_LENGTH = 3000;
+
+/** 翻訳ボタンの文言 */
+const TRANSLATE_BUTTON_LABEL = "翻訳";
+
+/** 翻訳ボタンの絵文字（globe with meridians）。ボタンには :shortcode: が使えない */
+const TRANSLATE_BUTTON_EMOJI = "\u{1F310}";
 
 /** 投票表示の上限 */
 const MAX_POLL_LENGTH = 1024;
@@ -106,6 +113,12 @@ export class ComponentsV2Builder {
     const linkRow = this.createOversizedVideoRow(oversizedVideoUrls);
     if (linkRow) {
       container.addActionRowComponents(linkRow);
+    }
+
+    // 動画のリンクボタンは最大5個で1行の上限に達しうるため、別の行にする
+    const translateRow = this.createTranslateRow(tweet);
+    if (translateRow) {
+      container.addActionRowComponents(translateRow);
     }
 
     container.addSeparatorComponents(new SeparatorBuilder().setDivider(true));
@@ -201,6 +214,32 @@ export class ComponentsV2Builder {
     );
 
     return new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons);
+  }
+
+  /**
+   * 押した人の言語へ翻訳する「翻訳」ボタン
+   *
+   * 翻訳するのはポスト自身と引用元の本文なので、どちらも空なら置かない。
+   * 押されたときの処理は TranslationInteractionHandler が行う。
+   */
+  private createTranslateRow(tweet: Tweet): ActionRowBuilder<ButtonBuilder> | undefined {
+    const hasText = ownTweetText(tweet).trim() !== "" || (tweet.quote?.text.trim() ?? "") !== "";
+    if (!hasText) {
+      return undefined;
+    }
+
+    const customId = buildTranslateCustomId(tweet.url, "button");
+    if (!customId) {
+      return undefined;
+    }
+
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setStyle(ButtonStyle.Secondary)
+        .setCustomId(customId)
+        .setEmoji(TRANSLATE_BUTTON_EMOJI)
+        .setLabel(TRANSLATE_BUTTON_LABEL)
+    );
   }
 
   /**

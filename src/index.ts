@@ -10,7 +10,9 @@ import { DiscordAnnouncementSender } from "#/adapters/discord/DiscordAnnouncemen
 import { DiscordEmbedBuilder } from "#/adapters/discord/EmbedBuilder.js";
 import { MessageHandler } from "#/adapters/discord/MessageHandler.js";
 import { OwnerCommandHandler } from "#/adapters/discord/OwnerCommandHandler.js";
+import { TranslationInteractionHandler } from "#/adapters/discord/TranslationInteractionHandler.js";
 import { TwitterAdapter } from "#/adapters/twitter/TwitterAdapter.js";
+import { VxTwitterAdapter } from "#/adapters/twitter/VxTwitterAdapter.js";
 import type { GuildDeliveryTarget } from "#/core/models/Announcement.js";
 import { AnnouncementService } from "#/core/services/AnnouncementService.js";
 import { ArticlePostService } from "#/core/services/ArticlePostService.js";
@@ -116,6 +118,8 @@ const mediaHandler = new MediaHandler(httpClient);
 
 // Adapter層
 const twitterAdapter = TwitterAdapter.createDefault();
+// 翻訳は VxTwitter だけで取る（FxTwitter へはフォールバックしない。ADR 0009）
+const translationInteractionHandler = new TranslationInteractionHandler(new VxTwitterAdapter());
 const embedBuilder = new DiscordEmbedBuilder();
 const componentsV2Builder = new ComponentsV2Builder();
 // Owner Command / Ban System
@@ -330,6 +334,15 @@ client.on("messageCreate", async (m: Message) => {
 
   messageHandler.handleMessage(client, m).catch((error) => {
     logger.error("Error handling message:", { error: error.message, stack: error.stack });
+  });
+});
+
+// On Interaction Create
+// 翻訳ボタンの集約ハンドラ。起動時に1回だけ登録する（ADR 0009）。
+// スポイラーボタンはメッセージ単位の collector で待ち受けるため、ここでは扱わない（ADR 0004）。
+client.on("interactionCreate", (interaction) => {
+  translationInteractionHandler.handle(interaction).catch((error) => {
+    logger.error("Error handling interaction:", { error: error.message, stack: error.stack });
   });
 });
 
