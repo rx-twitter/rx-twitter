@@ -80,6 +80,83 @@ describe("ComponentsV2Builder", () => {
       const json = buildJson({ tweet, spoiler: true });
       expect(JSON.stringify(componentsOf(json, ComponentType.MediaGallery))).toContain('"spoiler":true');
     });
+
+    describe("1つの MediaGallery の上限（10件）を超える場合", () => {
+      const photos = (count: number) =>
+        Array.from({ length: count }, (_, i) => ({
+          url: `https://example.test/${i + 1}.jpg`,
+          thumbnailUrl: `https://example.test/${i + 1}.jpg`,
+          type: "photo" as const,
+        }));
+
+      /** ギャラリーごとのアイテムURLを順に取り出す */
+      const galleryUrls = (json: ReturnType<typeof buildJson>) =>
+        componentsOf(json, ComponentType.MediaGallery).map((g) =>
+          ("items" in g ? g.items : []).map((item) => item.media.url)
+        );
+
+      // 10件のギャラリーは先頭1枚だけが大きく描画されるため、10件ずつには分けない。
+      // 上に2列の見出し（2件 or 2×2の4件）、下に3列の一覧（3×2の6件 / 3×3の9件）を並べる。
+      // 見出しの2件と続く6件は、上段2枚 + 3×2 に描画される8件へまとめる。
+      it.each<[number, number[]]>([
+        [10, [10]], // 10件以下は Discord 標準の配置に任せる
+        [11, [2, 9]],
+        [12, [6, 6]],
+        [13, [4, 9]],
+        [14, [8, 6]],
+        [15, [6, 9]],
+        [16, [4, 6, 6]],
+        [17, [8, 9]],
+        [18, [9, 9]],
+        [19, [4, 6, 9]],
+        [20, [2, 9, 9]],
+        [21, [6, 6, 9]],
+        [22, [4, 9, 9]],
+        [23, [8, 6, 9]],
+        [24, [6, 9, 9]],
+      ])("%i件は %j に分ける", (count, expected) => {
+        const json = buildJson({ tweet: createMockTweet({ media: photos(count) }) });
+
+        expect(galleryUrls(json).map((urls) => urls.length)).toEqual(expected);
+      });
+
+      it("分割しても順序を保つ", () => {
+        const json = buildJson({ tweet: createMockTweet({ media: photos(15) }) });
+
+        expect(galleryUrls(json).flat()).toEqual(photos(15).map((p) => p.thumbnailUrl));
+      });
+
+      it("画像・記事画像・動画を合わせた件数で分割する", () => {
+        const tweet = createMockTweet({
+          media: photos(19),
+          article: { title: "t", previewText: "p", imageUrl: "https://example.test/article.jpg" },
+        });
+        const json = buildJson({ tweet, videoUrls: ["https://video.twimg.com/a/b.mp4"] });
+
+        const urls = galleryUrls(json);
+        expect(urls.map((u) => u.length)).toEqual([6, 6, 9]);
+        expect(urls[0][0]).toBe("https://example.test/article.jpg");
+        expect(urls.at(-1)?.at(-1)).toBe("https://video.twimg.com/a/b.mp4");
+      });
+
+      it("24件を超える分は載せない", () => {
+        // メッセージ全体のコンポーネント数上限（40）に余裕を残すため
+        const json = buildJson({ tweet: createMockTweet({ media: photos(25) }) });
+
+        const urls = galleryUrls(json);
+        expect(urls.map((u) => u.length)).toEqual([6, 9, 9]);
+        expect(urls.flat()).not.toContain("https://example.test/25.jpg");
+      });
+
+      it("分割したすべてのギャラリーに spoiler を適用する", () => {
+        const json = buildJson({ tweet: createMockTweet({ media: photos(20) }), spoiler: true });
+
+        for (const gallery of componentsOf(json, ComponentType.MediaGallery)) {
+          const items = "items" in gallery ? gallery.items : [];
+          expect(items.every((item) => item.spoiler === true)).toBe(true);
+        }
+      });
+    });
   });
 
   describe("動画", () => {
