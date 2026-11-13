@@ -1,7 +1,7 @@
 import { HttpResponseError, ResponseContentTypeError } from "#/infrastructure/http/orvalFetch.js";
 import logger from "#/utils/logger.js";
 
-import { getPostInformation } from "./generated/default.js";
+import { getPostInformation, getPostInformationTranslated } from "./generated/default.js";
 import { VxTwitterStatus } from "./generated/model/index.js";
 import type { VxTwitter } from "./vxtwitter.js";
 
@@ -20,10 +20,12 @@ export class VxTwitterApi {
    * VxTwitter API からツイート情報を取得し、Zod で検証して返す。
    * 404 は undefined、5xx は VxTwitterServerError をスロー（フォールバック用）、
    * 検証失敗はログ出力の上 undefined を返す。
+   *
+   * @param lang 翻訳先の言語コード。指定するとレスポンスの translation に翻訳が入る
    */
-  async getPostInformation(url: string): Promise<VxTwitter | undefined> {
+  async getPostInformation(url: string, lang?: string): Promise<VxTwitter | undefined> {
     const startTime = Date.now();
-    logger.debug("VxTwitterApi: Request started", { url });
+    logger.debug("VxTwitterApi: Request started", { url, lang });
 
     const params = this.extractParams(url);
     if (!params) {
@@ -32,7 +34,9 @@ export class VxTwitterApi {
     }
 
     try {
-      const data = await getPostInformation(params.screenName, params.tweetId);
+      const data = lang
+        ? await getPostInformationTranslated(params.screenName, params.tweetId, lang)
+        : await getPostInformation(params.screenName, params.tweetId);
       const duration = Date.now() - startTime;
 
       const parsed = VxTwitterStatus.safeParse(data);

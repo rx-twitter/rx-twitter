@@ -52,6 +52,45 @@ paths:
         "5XX":
           description: サーバーエラー
 
+  /{screen_name}/status/{tweet_id}/{lang}:
+    get:
+      summary: Get post information with translation
+      description: >
+        末尾に翻訳先の言語を付けると、レスポンスの translation に翻訳が入る。
+        言語コードは DeepL の形式に近い (例: ja, en, pt-BR, zh-Hans, zh-Hant)。
+        受け付けない形式や、翻訳元と同じ言語を指定した場合 translation は null になる。
+      operationId: getPostInformationTranslated
+      parameters:
+        - name: screen_name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "ユーザーのスクリーンネーム (例: Twitter)"
+        - name: tweet_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ツイートの数値ID
+        - name: lang
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "翻訳先の言語コード (例: ja)"
+      responses:
+        "200":
+          description: ツイート情報（translation 付き）
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VxTwitterStatus"
+        "404":
+          description: ツイートが存在しない
+        "5XX":
+          description: サーバーエラー
+
 components:
   schemas:
     VxTwitterStatus:
