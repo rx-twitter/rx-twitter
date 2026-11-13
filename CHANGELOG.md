@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.2.0](https://github.com/rx-twitter/rx-twitter/compare/v3.1.2...v3.2.0) (2026-11-13)
+
+
+### Features
+
+* **discord:** 10件を超えるメディアを複数の MediaGallery に分けて表示する ([#675](https://github.com/rx-twitter/rx-twitter/issues/675)) ([050d0ec](https://github.com/rx-twitter/rx-twitter/commit/050d0ec2fde0dcffad8a31fb6b99c2245ce6db8c))
+* **discord:** v2 表示に翻訳ボタンを付け、押した人の言語で翻訳を返す ([#676](https://github.com/rx-twitter/rx-twitter/issues/676)) ([42b9ce3](https://github.com/rx-twitter/rx-twitter/commit/42b9ce39a97b9044a8a6c5a9332053f2fd21fef5))
+
 ## [3.1.2](https://github.com/rx-twitter/rx-twitter/compare/v3.1.1...v3.1.2) (2026-11-09)
 
 
