@@ -8,6 +8,18 @@ export interface ITwitterAdapter {
 }
 
 /**
+ * 翻訳付きでツイートを取得するためのインターフェース
+ */
+export interface ITweetTranslationAdapter {
+  /**
+   * @param lang 翻訳先の言語コード（"ja"、"zh-hans" など）
+   * @returns 取得できなければ undefined。翻訳できなかった場合は translation の無い Tweet。
+   *   引用元にも、取得できれば translation が入る
+   */
+  fetchTranslatedTweet(url: string, lang: string): Promise<Tweet | undefined>;
+}
+
+/**
  * 外部APIのレスポンスを共通のTweetモデルに変換するための基底クラス
  */
 export abstract class BaseTwitterAdapter {

@@ -14,6 +14,10 @@ const buildJson = (input: Parameters<ComponentsV2Builder["build"]>[0]) => builde
 
 const allText = (json: ReturnType<typeof buildJson>) => JSON.stringify(json);
 
+/** ボタン行のうち、指定の文言を含むものだけを集める */
+const rowsContaining = (json: ReturnType<typeof buildJson>, text: string) =>
+  componentsOf(json, ComponentType.ActionRow).filter((row) => JSON.stringify(row).includes(text));
+
 describe("ComponentsV2Builder", () => {
   it("Container として組み立てる", () => {
     const json = buildJson({ tweet: createMockTweet() });
@@ -80,6 +84,83 @@ describe("ComponentsV2Builder", () => {
       const json = buildJson({ tweet, spoiler: true });
       expect(JSON.stringify(componentsOf(json, ComponentType.MediaGallery))).toContain('"spoiler":true');
     });
+
+    describe("1つの MediaGallery の上限（10件）を超える場合", () => {
+      const photos = (count: number) =>
+        Array.from({ length: count }, (_, i) => ({
+          url: `https://example.test/${i + 1}.jpg`,
+          thumbnailUrl: `https://example.test/${i + 1}.jpg`,
+          type: "photo" as const,
+        }));
+
+      /** ギャラリーごとのアイテムURLを順に取り出す */
+      const galleryUrls = (json: ReturnType<typeof buildJson>) =>
+        componentsOf(json, ComponentType.MediaGallery).map((g) =>
+          ("items" in g ? g.items : []).map((item) => item.media.url)
+        );
+
+      // 10件のギャラリーは先頭1枚だけが大きく描画されるため、10件ずつには分けない。
+      // 上に2列の見出し（2件 or 2×2の4件）、下に3列の一覧（3×2の6件 / 3×3の9件）を並べる。
+      // 見出しの2件と続く6件は、上段2枚 + 3×2 に描画される8件へまとめる。
+      it.each<[number, number[]]>([
+        [10, [10]], // 10件以下は Discord 標準の配置に任せる
+        [11, [2, 9]],
+        [12, [6, 6]],
+        [13, [4, 9]],
+        [14, [8, 6]],
+        [15, [6, 9]],
+        [16, [4, 6, 6]],
+        [17, [8, 9]],
+        [18, [9, 9]],
+        [19, [4, 6, 9]],
+        [20, [2, 9, 9]],
+        [21, [6, 6, 9]],
+        [22, [4, 9, 9]],
+        [23, [8, 6, 9]],
+        [24, [6, 9, 9]],
+      ])("%i件は %j に分ける", (count, expected) => {
+        const json = buildJson({ tweet: createMockTweet({ media: photos(count) }) });
+
+        expect(galleryUrls(json).map((urls) => urls.length)).toEqual(expected);
+      });
+
+      it("分割しても順序を保つ", () => {
+        const json = buildJson({ tweet: createMockTweet({ media: photos(15) }) });
+
+        expect(galleryUrls(json).flat()).toEqual(photos(15).map((p) => p.thumbnailUrl));
+      });
+
+      it("画像・記事画像・動画を合わせた件数で分割する", () => {
+        const tweet = createMockTweet({
+          media: photos(19),
+          article: { title: "t", previewText: "p", imageUrl: "https://example.test/article.jpg" },
+        });
+        const json = buildJson({ tweet, videoUrls: ["https://video.twimg.com/a/b.mp4"] });
+
+        const urls = galleryUrls(json);
+        expect(urls.map((u) => u.length)).toEqual([6, 6, 9]);
+        expect(urls[0][0]).toBe("https://example.test/article.jpg");
+        expect(urls.at(-1)?.at(-1)).toBe("https://video.twimg.com/a/b.mp4");
+      });
+
+      it("24件を超える分は載せない", () => {
+        // メッセージ全体のコンポーネント数上限（40）に余裕を残すため
+        const json = buildJson({ tweet: createMockTweet({ media: photos(25) }) });
+
+        const urls = galleryUrls(json);
+        expect(urls.map((u) => u.length)).toEqual([6, 9, 9]);
+        expect(urls.flat()).not.toContain("https://example.test/25.jpg");
+      });
+
+      it("分割したすべてのギャラリーに spoiler を適用する", () => {
+        const json = buildJson({ tweet: createMockTweet({ media: photos(20) }), spoiler: true });
+
+        for (const gallery of componentsOf(json, ComponentType.MediaGallery)) {
+          const items = "items" in gallery ? gallery.items : [];
+          expect(items.every((item) => item.spoiler === true)).toBe(true);
+        }
+      });
+    });
   });
 
   describe("動画", () => {
@@ -89,16 +170,72 @@ describe("ComponentsV2Builder", () => {
         oversizedVideoUrls: ["https://video.example.test/big.mp4"],
       });
 
-      const rows = componentsOf(json, ComponentType.ActionRow);
+      const rows = rowsContaining(json, "動画を開く");
       expect(rows).toHaveLength(1);
       expect(JSON.stringify(rows[0])).toContain("https://video.example.test/big.mp4");
-      expect(JSON.stringify(rows[0])).toContain("動画を開く");
     });
 
-    it("超過動画が無ければボタン行を作らない", () => {
+    it("超過動画が無ければ動画のボタン行を作らない", () => {
       const json = buildJson({ tweet: createMockTweet() });
 
-      expect(componentsOf(json, ComponentType.ActionRow)).toHaveLength(0);
+      expect(rowsContaining(json, "動画を開く")).toHaveLength(0);
+    });
+  });
+
+  describe("翻訳ボタン", () => {
+    const translateRows = (json: ReturnType<typeof buildJson>) => rowsContaining(json, '"custom_id":"translate:');
+
+    it("本文があれば、ポストを指す customId の翻訳ボタンを置く", () => {
+      const json = buildJson({ tweet: createMockTweet({ text: "Hello" }) });
+
+      const rows = translateRows(json);
+      expect(rows).toHaveLength(1);
+      expect(JSON.stringify(rows[0])).toContain('"custom_id":"translate:test_user:123456789"');
+      expect(JSON.stringify(rows[0])).toContain("翻訳");
+    });
+
+    it("区切り線より前に置く", () => {
+      const json = buildJson({ tweet: createMockTweet({ text: "Hello" }) });
+
+      const components = json.components ?? [];
+      const rowIndex = components.findIndex((c) => JSON.stringify(c).includes('"custom_id":"translate:'));
+      const separatorIndex = components.findIndex((c) => c.type === ComponentType.Separator);
+      expect(rowIndex).toBeGreaterThanOrEqual(0);
+      expect(rowIndex).toBeLessThan(separatorIndex);
+    });
+
+    it("動画のリンクボタンとは別の行にする", () => {
+      // 動画のリンクボタンは最大5個で、1行の上限に達しうる
+      const json = buildJson({
+        tweet: createMockTweet({ text: "Hello" }),
+        oversizedVideoUrls: Array.from({ length: 5 }, (_, i) => `https://video.example.test/${i}.mp4`),
+      });
+
+      const rows = translateRows(json);
+      expect(rows).toHaveLength(1);
+      expect(JSON.stringify(rows[0])).not.toContain("動画を開く");
+    });
+
+    it("本文が空でも、引用元に本文があれば置く", () => {
+      const tweet = createMockTweet({ text: "", quote: createMockTweet({ text: "Quoted" }) });
+
+      expect(translateRows(buildJson({ tweet }))).toHaveLength(1);
+    });
+
+    it.each([
+      ["本文が空", createMockTweet({ text: "" })],
+      ["本文も引用元の本文も空", createMockTweet({ text: "", quote: createMockTweet({ text: " " }) })],
+      ["本文が空白だけ", createMockTweet({ text: "  \n " })],
+      [
+        "本文が記事の URL だけ",
+        createMockTweet({
+          text: "https://x.com/i/article/1234567890",
+          article: { title: "記事", previewText: "概要" },
+        }),
+      ],
+      ["ポストの URL でない", createMockTweet({ text: "Hello", url: "https://x.com/i/article/1234567890" })],
+    ])("%s なら置かない", (_, tweet) => {
+      expect(translateRows(buildJson({ tweet }))).toHaveLength(0);
     });
   });
 

@@ -12,7 +12,8 @@ import {
 
 import type { Tweet } from "#/core/models/Tweet.js";
 
-import { buildTweetBody, formatPollOptions, truncate } from "./tweetText.js";
+import { buildTranslateCustomId } from "./translateCustomId.js";
+import { buildTweetBody, formatPollOptions, ownTweetText, truncate } from "./tweetText.js";
 
 /** Embed と同じアクセントカラーを引き継ぐ */
 const ACCENT_COLOR = 9016025;
@@ -20,11 +21,51 @@ const ACCENT_COLOR = 9016025;
 /** Container 全体のテキスト上限。Discord の制約に合わせる */
 const MAX_BODY_LENGTH = 3000;
 
+/** 翻訳ボタンの文言 */
+const TRANSLATE_BUTTON_LABEL = "翻訳";
+
+/** 翻訳ボタンの絵文字（globe with meridians）。ボタンには :shortcode: が使えない */
+const TRANSLATE_BUTTON_EMOJI = "\u{1F310}";
+
 /** 投票表示の上限 */
 const MAX_POLL_LENGTH = 1024;
 
-/** MediaGallery に載せる画像の上限 */
+/** 1つの MediaGallery に載せられるアイテム数。Discord の制約に合わせる */
 const MAX_GALLERY_ITEMS = 10;
+
+/**
+ * 1つの MediaGallery に収まらないときの分け方
+ *
+ * 10件のギャラリーは先頭1枚だけが大きく描画されるため、10件ずつに
+ * 分けると大きい画像が途中に繰り返し現れる。そこで上に2列の見出し、
+ * 下に3列の一覧を置き、マスの大きさが上から下へ一方向に小さくなるようにする。
+ *
+ * - 一覧: 3×2の6件と3×3の9件だけで組む（3件は形が崩れるため使わない）
+ * - 見出し: 3で割った余りを吸収する。余り1なら2×2の4件、余り2なら横並びの2件
+ *   （1件は横幅いっぱいに描画されて目立つため使わない）
+ *
+ * 見出しの添字は件数を3で割った余り。
+ */
+const HEADING_ITEMS = [0, 4, 2] as const;
+const LIST_SMALL_ITEMS = 6;
+const LIST_LARGE_ITEMS = 9;
+
+/**
+ * 見出しの2件と続く6件をまとめた件数
+ *
+ * 8件のギャラリーは上段2枚 + 3×2で描画され、分けた場合と同じ見た目で
+ * ギャラリーを1つ減らせる。
+ */
+const HEADING_WITH_SMALL_LIST_ITEMS = 8;
+
+/**
+ * 分割するときに載せるアイテム数の上限
+ *
+ * X は1ポストに最大20件のメディアを添付でき、記事画像を足しても収まる。
+ * ギャラリーは最大3つになり、メッセージ全体のコンポーネント数上限（40）に
+ * 余裕を残せる。
+ */
+const MAX_SPLIT_ITEMS = 24;
 
 export interface ComponentsV2Input {
   tweet: Tweet;
@@ -64,14 +105,20 @@ export class ComponentsV2Builder {
       container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`### :bar_chart: poll\n${poll}`));
     }
 
-    const gallery = this.createGallery(tweet, videoUrls, spoiler);
-    if (gallery) {
-      container.addMediaGalleryComponents(gallery);
+    const galleries = this.createGalleries(tweet, videoUrls, spoiler);
+    if (galleries.length > 0) {
+      container.addMediaGalleryComponents(...galleries);
     }
 
     const linkRow = this.createOversizedVideoRow(oversizedVideoUrls);
     if (linkRow) {
       container.addActionRowComponents(linkRow);
+    }
+
+    // 動画のリンクボタンは最大5個で1行の上限に達しうるため、別の行にする
+    const translateRow = this.createTranslateRow(tweet);
+    if (translateRow) {
+      container.addActionRowComponents(translateRow);
     }
 
     container.addSeparatorComponents(new SeparatorBuilder().setDivider(true));
@@ -125,8 +172,10 @@ export class ComponentsV2Builder {
    *
    * 従来は同一URLの Embed を並べて Discord のギャラリー結合に頼っていたが、
    * v2 では MediaGallery で明示的に表現できる。
+   * 10件以下は1つのギャラリーにまとめ、Discord 標準の配置に任せる。
+   * 超える場合の分け方は HEADING_ITEMS を参照。
    */
-  private createGallery(tweet: Tweet, videoUrls: string[], spoiler: boolean): MediaGalleryBuilder | undefined {
+  private createGalleries(tweet: Tweet, videoUrls: string[], spoiler: boolean): MediaGalleryBuilder[] {
     const urls = tweet.media.filter((m) => m.type === "photo").map((m) => m.thumbnailUrl);
 
     if (tweet.article?.imageUrl) {
@@ -138,15 +187,15 @@ export class ComponentsV2Builder {
     // URL をそのまま渡せるため、ダウンロードも添付上限の判定も不要。
     urls.push(...videoUrls);
 
-    if (urls.length === 0) {
-      return undefined;
-    }
-
     const items = urls
-      .slice(0, MAX_GALLERY_ITEMS)
+      .slice(0, MAX_SPLIT_ITEMS)
       .map((url) => new MediaGalleryItemBuilder().setURL(url).setSpoiler(spoiler));
 
-    return new MediaGalleryBuilder().addItems(...items);
+    if (items.length === 0) {
+      return [];
+    }
+
+    return splitForGallery(items).map((group) => new MediaGalleryBuilder().addItems(...group));
   }
 
   /**
@@ -168,6 +217,32 @@ export class ComponentsV2Builder {
   }
 
   /**
+   * 押した人の言語へ翻訳する「翻訳」ボタン
+   *
+   * 翻訳するのはポスト自身と引用元の本文なので、どちらも空なら置かない。
+   * 押されたときの処理は TranslationInteractionHandler が行う。
+   */
+  private createTranslateRow(tweet: Tweet): ActionRowBuilder<ButtonBuilder> | undefined {
+    const hasText = ownTweetText(tweet).trim() !== "" || (tweet.quote?.text.trim() ?? "") !== "";
+    if (!hasText) {
+      return undefined;
+    }
+
+    const customId = buildTranslateCustomId(tweet.url, "button");
+    if (!customId) {
+      return undefined;
+    }
+
+    return new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setStyle(ButtonStyle.Secondary)
+        .setCustomId(customId)
+        .setEmoji(TRANSLATE_BUTTON_EMOJI)
+        .setLabel(TRANSLATE_BUTTON_LABEL)
+    );
+  }
+
+  /**
    * メトリクスと投稿日時
    */
   private createMetrics(tweet: Tweet): string {
@@ -183,3 +258,38 @@ export class ComponentsV2Builder {
     ].join("　");
   }
 }
+
+/**
+ * ギャラリーごとのアイテム数を決める
+ *
+ * 分け方の理由は HEADING_ITEMS を参照。
+ */
+const gallerySizes = (count: number): number[] => {
+  if (count <= MAX_GALLERY_ITEMS) {
+    return [count];
+  }
+
+  const heading = HEADING_ITEMS[count % 3];
+  const listCount = count - heading;
+  // 9件で割った余りが3なら6件を2つ、6なら1つ使うと、残りが9件で割り切れる
+  const smallCount = [0, 2, 1][(listCount / 3) % 3];
+  const largeCount = (listCount - LIST_SMALL_ITEMS * smallCount) / LIST_LARGE_ITEMS;
+  const list = [
+    ...Array.from({ length: smallCount }, () => LIST_SMALL_ITEMS),
+    ...Array.from({ length: largeCount }, () => LIST_LARGE_ITEMS),
+  ];
+
+  if (heading === 2 && list[0] === LIST_SMALL_ITEMS) {
+    return [HEADING_WITH_SMALL_LIST_ITEMS, ...list.slice(1)];
+  }
+  return heading > 0 ? [heading, ...list] : list;
+};
+
+/**
+ * ギャラリーごとのアイテムに分ける。要素の順序は保つ
+ */
+const splitForGallery = <T>(items: readonly T[]): T[][] =>
+  gallerySizes(items.length).map((size, index, sizes) => {
+    const start = sizes.slice(0, index).reduce((sum, s) => sum + s, 0);
+    return items.slice(start, start + size);
+  });
