@@ -48,3 +48,31 @@ export const getPostInformation = async (screenName: string,
 );}
 
 
+export const getGetPostInformationTranslatedUrl = (screenName: string,
+    tweetId: string,
+    lang: string,) => {
+
+
+
+
+  return `https://api.vxtwitter.com/${screenName}/status/${tweetId}/${lang}`
+}
+
+/**
+ * 末尾に翻訳先の言語を付けると、レスポンスの translation に翻訳が入る。 言語コードは DeepL の形式に近い (例: ja, en, pt-BR, zh-Hans, zh-Hant)。 受け付けない形式や、翻訳元と同じ言語を指定した場合 translation は null になる。
+ * @summary Get post information with translation
+ */
+export const getPostInformationTranslated = async (screenName: string,
+    tweetId: string,
+    lang: string, options?: Parameters<typeof orvalFetch>[1]): Promise<VxTwitterStatus> => {
+
+  return orvalFetch<VxTwitterStatus>(getGetPostInformationTranslatedUrl(screenName,tweetId,lang),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+

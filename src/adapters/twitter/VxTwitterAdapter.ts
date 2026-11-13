@@ -1,5 +1,10 @@
-import { BaseTwitterAdapter, ITwitterAdapter } from "#/adapters/twitter/BaseTwitterAdapter.js";
-import type { Tweet, TweetArticle, TweetMedia } from "#/core/models/Tweet.js";
+import {
+  BaseTwitterAdapter,
+  ITweetTranslationAdapter,
+  ITwitterAdapter,
+} from "#/adapters/twitter/BaseTwitterAdapter.js";
+import { isSameLanguage, isVxTranslationLanguage } from "#/adapters/twitter/vxTranslationLang.js";
+import type { Tweet, TweetArticle, TweetMedia, TweetTranslation } from "#/core/models/Tweet.js";
 import { extractArticleId } from "#/core/services/TweetProcessor.js";
 import logger from "#/utils/logger.js";
 import { VxTwitterApi, VxTwitterServerError } from "#/vxtwitter/api.js";
@@ -8,7 +13,7 @@ import type { VxTwitter } from "#/vxtwitter/vxtwitter.js";
 /**
  * VxTwitter API アダプター
  */
-export class VxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdapter {
+export class VxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdapter, ITweetTranslationAdapter {
   private readonly api: VxTwitterApi;
   private readonly URL_REGEX = /\/(x|twitter)/;
 
@@ -103,6 +108,63 @@ export class VxTwitterAdapter extends BaseTwitterAdapter implements ITwitterAdap
       poll,
       quote,
       timestamp: new Date(vxData.date),
+      lang: vxData.lang ?? undefined,
+      translation: this.convertTranslation(vxData.translation),
+    };
+  }
+
+  /**
+   * 翻訳付きでツイートを取得する
+   *
+   * 翻訳は FxTwitter へフォールバックしない。FxTwitter は翻訳先によって、
+   * DeepL のエラー文を翻訳として返すことがあるため（2026-11 時点）。
+   * そのため 5xx も上位へ投げずにここで握る。
+   */
+  async fetchTranslatedTweet(url: string, lang: string): Promise<Tweet | undefined> {
+    // 言語コードは URL のパスに入るため、一覧に無いものは渡さない
+    const requested = isVxTranslationLanguage(lang) ? lang : undefined;
+
+    try {
+      const data = await this.api.getPostInformation(this.transformUrl(url), requested);
+      if (!data) {
+        return undefined;
+      }
+
+      const tweet = this.convertToTweet(data);
+      return tweet && this.keepRequestedTranslation(tweet, requested);
+    } catch (error) {
+      logger.warn("VxTwitterAdapter: Failed to fetch translated tweet", {
+        lang,
+        status: error instanceof VxTwitterServerError ? error.status : undefined,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return undefined;
+    }
+  }
+
+  /**
+   * 頼んだ言語の翻訳だけを残す（引用元も含む）
+   *
+   * 非対応の言語を頼むと、VxTwitter は別の言語（英語など）の翻訳を返すことがある。
+   */
+  private keepRequestedTranslation(tweet: Tweet, lang: string | undefined): Tweet {
+    const matches = tweet.translation && lang !== undefined && isSameLanguage(tweet.translation.targetLang, lang);
+    return {
+      ...tweet,
+      translation: matches ? tweet.translation : undefined,
+      quote: tweet.quote && this.keepRequestedTranslation(tweet.quote, lang),
+    };
+  }
+
+  private convertTranslation(data: VxTwitter["translation"]): TweetTranslation | undefined {
+    if (!data?.text || !data.source_language || !data.destination_language) {
+      return undefined;
+    }
+
+    return {
+      text: data.text,
+      sourceLang: data.source_language.toLowerCase(),
+      targetLang: data.destination_language.toLowerCase(),
     };
   }
 

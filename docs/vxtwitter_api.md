@@ -163,6 +163,17 @@ VxTwitter (BetterTwitFix) は Flask ベースのサーバーで、Twitter の内
 | `destination_language` | string | 翻訳先言語   |
 | `text`                 | string | 翻訳テキスト |
 
+## 翻訳
+
+### GET `/{screen_name}/status/{tweet_id}/{lang}`
+
+パスの末尾に翻訳先の言語を付けると、レスポンスの `translation` に翻訳が入る。レスポンスの形は `/{screen_name}/status/{tweet_id}` と同じ。
+
+- `lang` は BetterTwitFix の `translation.py` にある `validLanguages` のいずれか（大文字・小文字は区別しない）。一覧に無い値は翻訳先として扱われず、`translation` は `null` になる。地域付きの `en-US` や `zh-CN`、`pt`、`no` は一覧に無い。対応は `src/adapters/twitter/vxTranslationLang.ts` を参照。
+- 翻訳は、まず X の翻訳機能で試し、取れなければ DeepL で訳す。どちらの経路を通ったかで `destination_language` の大文字・小文字が揺れる（X 経由なら `en`、DeepL 経由なら `KO`）。
+- 翻訳元と同じ言語を指定すると `translation` は `null` になる。
+- 対応していない言語を指定すると、別の言語（英語など）の翻訳が返ることがある。`destination_language` を確かめること。
+
 ## 注意点
 
 - `media_extended` は必須ではない。レスポンスに含まれない場合は `mediaURLs` で代替する（フォールバック）。

@@ -53,13 +53,20 @@ export const formatPollOptions = (options: TweetPollOption[]): string =>
     .join("\n");
 
 /**
+ * ポスト自身の本文（記事プレビューと引用を含まない）
+ *
+ * 本文が記事本体URLのみの場合は、表示する本文が無いものとして空文字を返す。
+ */
+export const ownTweetText = (tweet: Tweet): string =>
+  tweet.article && ARTICLE_ONLY_PATTERN.test(tweet.text.trim()) ? "" : tweet.text;
+
+/**
  * ツイート本文を組み立てる（メンションのリンク化・記事プレビュー・引用を含む）
  *
  * 本文が記事本体URLのみの場合は本文を空として扱い、記事プレビューのみを表示する。
  */
 export const buildTweetBody = (tweet: Tweet): string => {
-  const tweetText = tweet.article && ARTICLE_ONLY_PATTERN.test(tweet.text.trim()) ? "" : tweet.text;
-  let body = convertMentionsToLinks(tweetText);
+  let body = convertMentionsToLinks(ownTweetText(tweet));
 
   if (tweet.article) {
     body += (body === "" ? "" : "\n\n") + convertMentionsToLinks(tweet.article.previewText);

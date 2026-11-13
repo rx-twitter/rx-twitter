@@ -14,6 +14,10 @@ const buildJson = (input: Parameters<ComponentsV2Builder["build"]>[0]) => builde
 
 const allText = (json: ReturnType<typeof buildJson>) => JSON.stringify(json);
 
+/** ボタン行のうち、指定の文言を含むものだけを集める */
+const rowsContaining = (json: ReturnType<typeof buildJson>, text: string) =>
+  componentsOf(json, ComponentType.ActionRow).filter((row) => JSON.stringify(row).includes(text));
+
 describe("ComponentsV2Builder", () => {
   it("Container として組み立てる", () => {
     const json = buildJson({ tweet: createMockTweet() });
@@ -166,16 +170,72 @@ describe("ComponentsV2Builder", () => {
         oversizedVideoUrls: ["https://video.example.test/big.mp4"],
       });
 
-      const rows = componentsOf(json, ComponentType.ActionRow);
+      const rows = rowsContaining(json, "動画を開く");
       expect(rows).toHaveLength(1);
       expect(JSON.stringify(rows[0])).toContain("https://video.example.test/big.mp4");
-      expect(JSON.stringify(rows[0])).toContain("動画を開く");
     });
 
-    it("超過動画が無ければボタン行を作らない", () => {
+    it("超過動画が無ければ動画のボタン行を作らない", () => {
       const json = buildJson({ tweet: createMockTweet() });
 
-      expect(componentsOf(json, ComponentType.ActionRow)).toHaveLength(0);
+      expect(rowsContaining(json, "動画を開く")).toHaveLength(0);
+    });
+  });
+
+  describe("翻訳ボタン", () => {
+    const translateRows = (json: ReturnType<typeof buildJson>) => rowsContaining(json, '"custom_id":"translate:');
+
+    it("本文があれば、ポストを指す customId の翻訳ボタンを置く", () => {
+      const json = buildJson({ tweet: createMockTweet({ text: "Hello" }) });
+
+      const rows = translateRows(json);
+      expect(rows).toHaveLength(1);
+      expect(JSON.stringify(rows[0])).toContain('"custom_id":"translate:test_user:123456789"');
+      expect(JSON.stringify(rows[0])).toContain("翻訳");
+    });
+
+    it("区切り線より前に置く", () => {
+      const json = buildJson({ tweet: createMockTweet({ text: "Hello" }) });
+
+      const components = json.components ?? [];
+      const rowIndex = components.findIndex((c) => JSON.stringify(c).includes('"custom_id":"translate:'));
+      const separatorIndex = components.findIndex((c) => c.type === ComponentType.Separator);
+      expect(rowIndex).toBeGreaterThanOrEqual(0);
+      expect(rowIndex).toBeLessThan(separatorIndex);
+    });
+
+    it("動画のリンクボタンとは別の行にする", () => {
+      // 動画のリンクボタンは最大5個で、1行の上限に達しうる
+      const json = buildJson({
+        tweet: createMockTweet({ text: "Hello" }),
+        oversizedVideoUrls: Array.from({ length: 5 }, (_, i) => `https://video.example.test/${i}.mp4`),
+      });
+
+      const rows = translateRows(json);
+      expect(rows).toHaveLength(1);
+      expect(JSON.stringify(rows[0])).not.toContain("動画を開く");
+    });
+
+    it("本文が空でも、引用元に本文があれば置く", () => {
+      const tweet = createMockTweet({ text: "", quote: createMockTweet({ text: "Quoted" }) });
+
+      expect(translateRows(buildJson({ tweet }))).toHaveLength(1);
+    });
+
+    it.each([
+      ["本文が空", createMockTweet({ text: "" })],
+      ["本文も引用元の本文も空", createMockTweet({ text: "", quote: createMockTweet({ text: " " }) })],
+      ["本文が空白だけ", createMockTweet({ text: "  \n " })],
+      [
+        "本文が記事の URL だけ",
+        createMockTweet({
+          text: "https://x.com/i/article/1234567890",
+          article: { title: "記事", previewText: "概要" },
+        }),
+      ],
+      ["ポストの URL でない", createMockTweet({ text: "Hello", url: "https://x.com/i/article/1234567890" })],
+    ])("%s なら置かない", (_, tweet) => {
+      expect(translateRows(buildJson({ tweet }))).toHaveLength(0);
     });
   });
 

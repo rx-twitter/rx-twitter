@@ -474,4 +474,127 @@ describe("VxTwitterAdapter", () => {
       expect(result?.quote?.media[0].url).toBe(mediaUrl("qt_fallback.jpg"));
     });
   });
+
+  describe("fetchTranslatedTweet", () => {
+    const url = "https://x.com/test_user/status/123456789";
+    const translated = (destination: string, overrides: Partial<VxTwitter> = {}) =>
+      createVxTwitterData({
+        text: "こんにちは",
+        lang: "ja",
+        translation: { source_language: "ja", destination_language: destination, text: "Hello" },
+        ...overrides,
+      });
+
+    it("指定した言語コードで取得する", async () => {
+      mockApi.getPostInformation.mockResolvedValue(translated("zh"));
+
+      await adapter.fetchTranslatedTweet(url, "zh-hans");
+
+      expect(mockApi.getPostInformation).toHaveBeenCalledWith(expect.any(String), "zh-hans");
+    });
+
+    it("原文・投稿の言語・翻訳を Tweet に入れて返す", async () => {
+      mockApi.getPostInformation.mockResolvedValue(translated("en"));
+
+      const result = await adapter.fetchTranslatedTweet(url, "en");
+
+      expect(result?.text).toBe("こんにちは");
+      expect(result?.lang).toBe("ja");
+      expect(result?.translation).toEqual({ text: "Hello", sourceLang: "ja", targetLang: "en" });
+    });
+
+    it("言語コードの大文字・小文字の揺れを小文字にそろえる", async () => {
+      mockApi.getPostInformation.mockResolvedValue(translated("KO"));
+
+      const result = await adapter.fetchTranslatedTweet(url, "ko");
+
+      expect(result?.translation?.targetLang).toBe("ko");
+    });
+
+    it("頼んだ言語と違う言語で返ってきた翻訳は捨てる", async () => {
+      // 非対応の言語を頼むと、VxTwitter は英語の翻訳を返すことがある
+      mockApi.getPostInformation.mockResolvedValue(translated("en"));
+
+      const result = await adapter.fetchTranslatedTweet(url, "lt");
+
+      expect(result?.text).toBe("こんにちは");
+      expect(result?.translation).toBeUndefined();
+    });
+
+    it("translation が null なら翻訳なしの Tweet を返す", async () => {
+      // 翻訳元と同じ言語を頼んだ場合など
+      mockApi.getPostInformation.mockResolvedValue(translated("ja", { translation: null }));
+
+      const result = await adapter.fetchTranslatedTweet(url, "ja");
+
+      expect(result?.lang).toBe("ja");
+      expect(result?.translation).toBeUndefined();
+    });
+
+    it("翻訳の本文が空なら翻訳なしとして扱う", async () => {
+      mockApi.getPostInformation.mockResolvedValue(
+        translated("en", { translation: { source_language: "ja", destination_language: "en", text: "" } })
+      );
+
+      const result = await adapter.fetchTranslatedTweet(url, "en");
+
+      expect(result?.translation).toBeUndefined();
+    });
+
+    it("VxTwitter が受け付けない言語コードなら、言語を付けずに取得する", async () => {
+      // 言語コードは URL のパスに入るため、一覧に無いものは渡さない
+      mockApi.getPostInformation.mockResolvedValue(translated("ja", { translation: null }));
+
+      const result = await adapter.fetchTranslatedTweet(url, "ja/../x");
+
+      expect(mockApi.getPostInformation).toHaveBeenCalledWith(expect.any(String), undefined);
+      expect(result?.translation).toBeUndefined();
+    });
+
+    describe("引用元", () => {
+      const quoted = (destination: string) =>
+        createVxTwitterData({
+          tweetURL: "https://x.com/quoted_user/status/999",
+          text: "引用元",
+          lang: "ja",
+          translation: { source_language: "ja", destination_language: destination, text: "Quoted" },
+        });
+
+      it("引用元の翻訳も Tweet に入れて返す", async () => {
+        // VxTwitter は言語を付けて取得すると、引用元の翻訳も同じレスポンスに入れる
+        mockApi.getPostInformation.mockResolvedValue(translated("en", { qrt: quoted("en") }));
+
+        const result = await adapter.fetchTranslatedTweet(url, "en");
+
+        expect(result?.quote?.translation).toEqual({ text: "Quoted", sourceLang: "ja", targetLang: "en" });
+      });
+
+      it("頼んだ言語と違う言語で返ってきた引用元の翻訳は捨てる", async () => {
+        mockApi.getPostInformation.mockResolvedValue(translated("lt", { qrt: quoted("en") }));
+
+        const result = await adapter.fetchTranslatedTweet(url, "lt");
+
+        expect(result?.translation).toBeDefined();
+        expect(result?.quote?.text).toBe("引用元");
+        expect(result?.quote?.translation).toBeUndefined();
+      });
+    });
+
+    it("5xx でも例外を投げず undefined を返す", async () => {
+      // 翻訳は FxTwitter へフォールバックしないため、ここで握る
+      mockApi.getPostInformation.mockRejectedValue(new VxTwitterServerError(503, "unavailable"));
+
+      await expect(adapter.fetchTranslatedTweet(url, "en")).resolves.toBeUndefined();
+    });
+  });
+
+  describe("fetchTweet の翻訳まわり", () => {
+    it("言語を付けずに取得する", async () => {
+      mockApi.getPostInformation.mockResolvedValue(createVxTwitterData());
+
+      await adapter.fetchTweet("https://x.com/test_user/status/123456789");
+
+      expect(mockApi.getPostInformation).toHaveBeenCalledWith(expect.any(String));
+    });
+  });
 });
