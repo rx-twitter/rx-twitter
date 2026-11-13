@@ -48,8 +48,8 @@ const createInteraction = (
     deferUpdate: vi.fn(async () => {
       interaction.deferred = true;
     }),
-    editReply: vi.fn(async () => undefined),
-    reply: vi.fn(async () => undefined),
+    editReply: vi.fn(async (_options: unknown) => undefined),
+    reply: vi.fn(async (_options: unknown) => undefined),
   };
   return interaction;
 };
