@@ -165,6 +165,17 @@ VxTwitter (BetterTwitFix) は Flask ベースのサーバーで、Twitter の内
 
 ## 翻訳
 
+> [!WARNING]
+> 翻訳は BetterTwitFix のドキュメント（`readme.md`・`api.md` など）に載っていない機能で、レスポンスの `translation` も `api.md` に無い。予告なく変わったり、なくなったりしうる。
+>
+> API での使い方の根拠は、上流の Issue [dylanpdx/BetterTwitFix#273](https://github.com/dylanpdx/BetterTwitFix/issues/273) を作者が閉じたときのコメント（2026-04-24）だけ。「API を使う人は `api.vxtwitter.com/.../jp` でいい」とある。以下の挙動は、このコメントと上流のソース（[d75cb1a](https://github.com/dylanpdx/BetterTwitFix/tree/d75cb1aad8a2162df2b9c182d36bf15797068656)）、実 API で確かめた結果（2026-11）に基づく。
+>
+> 変化に気づくには、実 API のテストを手で走らせる（CI では走らない）。
+>
+> ```bash
+> RUN_LIVE_API_TESTS=1 npx vitest run tests/integration/vxtwitterTranslation.test.ts
+> ```
+
 ### GET `/{screen_name}/status/{tweet_id}/{lang}`
 
 パスの末尾に翻訳先の言語を付けると、レスポンスの `translation` に翻訳が入る。レスポンスの形は `/{screen_name}/status/{tweet_id}` と同じ。
@@ -173,6 +184,14 @@ VxTwitter (BetterTwitFix) は Flask ベースのサーバーで、Twitter の内
 - 翻訳は、まず X の翻訳機能で試し、取れなければ DeepL で訳す。どちらの経路を通ったかで `destination_language` の大文字・小文字が揺れる（X 経由なら `en`、DeepL 経由なら `KO`）。
 - 翻訳元と同じ言語を指定すると `translation` は `null` になる。
 - 対応していない言語を指定すると、別の言語（英語など）の翻訳が返ることがある。`destination_language` を確かめること。
+- 引用元（`qrt`）も同じ言語で取得し直され、`qrt.translation` に翻訳が入る。
+- 翻訳つきの結果は上流でキャッシュされず、毎回 X に問い合わせる。
+
+### 上流の処理の流れ
+
+1. パスの各要素を `validLanguages`（と別名の `JP` → `JA`）と照らし、当たったものを翻訳先にする。パスに無ければサブドメイン（`ja.vxtwitter.com` など）も見る。
+2. X の GraphQL API を、ヘッダ `x-twitter-client-language` に翻訳先を入れて叩く。X はその言語の Grok 翻訳（`grok_translated_post_with_availability`）をレスポンスに含めて返す。
+3. X の翻訳が無く、翻訳先が投稿の言語と違うときだけ、VxTwitter 自身の DeepL キーで訳す。キーが無ければ翻訳は無しになる。DeepL 経由では `destination_language` が大文字（英語は `EN-US`）になる。
 
 ## 注意点
 
