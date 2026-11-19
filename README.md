@@ -32,6 +32,7 @@ TwitterRX/
 
 Dashboard はこのリポジトリには含まれません。独立した
 [rx-twitter/rx-twitter-dashboard](https://github.com/rx-twitter/rx-twitter-dashboard) で管理しています。
+Dashboard の仕様書・設計文書も同リポジトリの `docs/` にあります。
 
 ### 技術スタック
 
