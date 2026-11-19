@@ -39,7 +39,7 @@ services:
     container_name: TwitterRX_Redis
     # 8.10 で書き直したデータは 8.2 では読めない（RDB 形式 15）。
     # Redis を更新する前に redis_data をバックアップすること。
-    image: redis:8.10.2-alpine@sha256:9f8d2d789b9a1d1e3f283f979aa9cbf393373806472e1ccd460e2f9c869b833b
+    image: redis:8.10.3-alpine@sha256:7958cfbb9d152f87dadfbc89f1b0b15938f0b81ff8982feb327476f4911935c3
     restart: always
     command: redis-server --appendonly yes
     volumes:
