@@ -20,7 +20,7 @@ services:
   # Discord Bot
   twitter-rx:
     container_name: TwitterRX_Bot
-    image: ghcr.io/twitterrx/discord-twitter-embed-rx:${IMAGE_TAG:-latest}
+    image: ghcr.io/rx-twitter/rx-twitter:${IMAGE_TAG:-latest}
     restart: always
     env_file:
       - .env
