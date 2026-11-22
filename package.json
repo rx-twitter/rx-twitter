@@ -72,7 +72,7 @@
     "@vitest/coverage-v8": "5.1.0",
     "@vitest/ui": "5.1.0",
     "husky": "9.1.7",
-    "lint-staged": "17.6.0",
+    "lint-staged": "17.6.1",
     "orval": "8.47.0",
     "oxfmt": "0.78.0",
     "oxlint": "1.93.0",
